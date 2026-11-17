@@ -1,6 +1,7 @@
 import { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -23,6 +24,7 @@ function lineTotal(item) {
 }
 
 function Cart() {
+  const [searchParams] = useSearchParams();
   const { cartItems, products, handleUpdateQuantity, handleRemoveFromCart } = useContext(CartContext);
 
   return (
@@ -30,6 +32,7 @@ function Cart() {
       <Button component={Link} to="/marketplace" startIcon={<ArrowBackIcon />} sx={{ mb: 2 }}>
         Back to Not Marketplace
       </Button>
+      {searchParams.get('payment') === 'cancelled' && <Alert severity="info" sx={{ mb: 2 }}>Payment cancelled. Your cart is still here when you’re ready.</Alert>}
       <Typography variant="h5" component="h1" gutterBottom>Your cart</Typography>
       {cartItems.length === 0 ? (
         <Card sx={{ borderRadius: 3, p: 4, textAlign: 'center' }}>

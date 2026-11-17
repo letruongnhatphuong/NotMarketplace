@@ -14,6 +14,7 @@ import {
 import Login from './Login.jsx';
 import Marketplace from './Marketplace.jsx';
 import Cart from './Cart.jsx';
+import PaymentResult from './PaymentResult.jsx';
 import Sell from './Sell.jsx';
 import SellButton from './components/SellButton.jsx';
 import Orders from './Orders.jsx';
@@ -153,6 +154,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Login />} />
               <Route path="/marketplace" element={<Marketplace filters={filters} products={products} loadError={productsError} />} />
+              <Route path="/payment" element={<PaymentResult user={user} authReady={authReady} />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/sell" element={<Sell user={user} authReady={authReady} />} />
               <Route path="/orders" element={<Orders user={user} authReady={authReady} />} />

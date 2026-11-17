@@ -1,26 +1,15 @@
 import { useContext, useState } from 'react';
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Divider,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Alert, Box, Button, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import CartContext from '../context/CartContext.js';
+import { paymentRequest } from '../services/paymentService.js';
+import { auth } from '../firebase.js';
 import { formatMoney } from '../utils/salesUtils.js';
 
 function CartCheckout() {
-  const { cartItems, handleClearCart } = useContext(CartContext);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [placedOpen, setPlacedOpen] = useState(false);
+  const { cartItems } = useContext(CartContext);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const itemCount = cartItems.reduce((total, item) => total + (item.quantity || 1), 0);
   const total = cartItems.reduce(
@@ -28,10 +17,19 @@ function CartCheckout() {
     0,
   );
 
-  function placeOrder() {
-    handleClearCart();
-    setConfirmOpen(false);
-    setPlacedOpen(true);
+  async function checkout() {
+    setLoading(true);
+    setError('');
+    try {
+      const { url } = await paymentRequest('/api/checkout', {
+        method: 'POST',
+        body: JSON.stringify({ items: cartItems.map((item) => ({ id: item.id, quantity: item.quantity || 1 })) }),
+      });
+      window.location.assign(url);
+    } catch (failure) {
+      setError(failure.message);
+      setLoading(false);
+    }
   }
 
   return (
@@ -51,42 +49,23 @@ function CartCheckout() {
             <Typography fontWeight="bold">{formatMoney(total)}</Typography>
           </Box>
         </Stack>
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {!auth.currentUser && <Alert severity="info" sx={{ mb: 2 }}>Log in to pay for your items.</Alert>}
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Secure card payment in CAD. Featured demo items cannot be purchased.
+        </Typography>
         <Button
           fullWidth
           size="large"
           variant="contained"
           startIcon={<ShoppingCartCheckoutIcon />}
-          onClick={() => setConfirmOpen(true)}
+          onClick={checkout}
+          disabled={loading || !auth.currentUser}
         >
-          Place order
+          {loading ? 'Opening secure checkout…' : 'Pay with Stripe'}
         </Button>
       </CardContent>
 
-      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
-        <DialogTitle>Place your order?</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            You are ordering {itemCount === 1 ? '1 item' : `${itemCount} items`} for {formatMoney(total)}.
-            This demo does not take payment.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setConfirmOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={placeOrder}>Place order</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog open={placedOpen} onClose={() => setPlacedOpen(false)}>
-        <DialogTitle>Order placed</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Thanks! Your cart has been cleared. This demo does not record orders in the database.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="contained" onClick={() => setPlacedOpen(false)}>Done</Button>
-        </DialogActions>
-      </Dialog>
     </Card>
   );
 }

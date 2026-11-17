@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:payments": "node --env-file=.env.local server/dev.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -15,9 +16,11 @@
     "@mui/icons-material": "^9.5.0",
     "@mui/material": "^9.5.0",
     "firebase": "^13.2.0",
+    "firebase-admin": "^14.5.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.5"
+    "react-router-dom": "^7.18.5",
+    "stripe": "^23.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
