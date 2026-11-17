@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { AppBar, Badge, Box, Button, Container, IconButton, Menu, MenuItem, Toolbar } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CartContext from '../context/CartContext.js';
+import SellButton from './SellButton.jsx';
 
 function Navbar({ user, authReady, loggingOut, onLogout, onHome }) {
   const [menuAnchor, setMenuAnchor] = useState(null);
@@ -31,6 +32,8 @@ function Navbar({ user, authReady, loggingOut, onLogout, onHome }) {
             <Box component="img" src="/not-marketplace.png" width={72} height={72} alt="" />
           </Box>
           <Box sx={{ flexGrow: 1 }} />
+
+          <SellButton />
 
           <IconButton component={Link} to="/cart" aria-label={`Cart, ${cartCount} items`} title="Cart">
             <Badge badgeContent={cartCount} color="primary">

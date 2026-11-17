@@ -16,7 +16,6 @@ import Marketplace from './Marketplace.jsx';
 import Cart from './Cart.jsx';
 import PaymentResult from './PaymentResult.jsx';
 import Sell from './Sell.jsx';
-import SellButton from './components/SellButton.jsx';
 import Orders from './Orders.jsx';
 import UserProfile from './UserProfile.jsx';
 import Revenue from './Revenue.jsx';
@@ -149,7 +148,6 @@ function App() {
 
           <Container component="main" sx={{ py: 4, minWidth: 0 }}>
             {authError && <Alert severity="error" sx={{ mb: 2 }}>{authError}</Alert>}
-            {page === '/marketplace' && <SellButton />}
             <Routes>
               <Route path="/" element={<Login />} />
               <Route path="/marketplace" element={<Marketplace filters={filters} products={products} loadError={productsError} />} />
