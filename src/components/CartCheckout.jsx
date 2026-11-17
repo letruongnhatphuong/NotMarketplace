@@ -7,7 +7,8 @@ import { auth } from '../firebase.js';
 import { formatMoney } from '../utils/salesUtils.js';
 
 function CartCheckout() {
-  const { cartItems } = useContext(CartContext);
+  const { cartItems, handleRemoveFromCart } = useContext(CartContext);
+  const demoItems = cartItems.filter((item) => typeof item.id === 'number');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -49,6 +50,16 @@ function CartCheckout() {
             <Typography fontWeight="bold">{formatMoney(total)}</Typography>
           </Box>
         </Stack>
+        {demoItems.length > 0 && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            {demoItems.map((item) => item.name).join(', ')}: demo items cannot be purchased.
+            Remove them and choose a listing added by another user.
+            <Button color="inherit" onClick={() => {
+              for (const item of demoItems) handleRemoveFromCart(item.id);
+              setError('');
+            }}>Remove demo items</Button>
+          </Alert>
+        )}
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         {!auth.currentUser && <Alert severity="info" sx={{ mb: 2 }}>Log in to pay for your items.</Alert>}
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -60,7 +71,7 @@ function CartCheckout() {
           variant="contained"
           startIcon={<ShoppingCartCheckoutIcon />}
           onClick={checkout}
-          disabled={loading || !auth.currentUser}
+          disabled={loading || !auth.currentUser || demoItems.length > 0}
         >
           {loading ? 'Opening secure checkout…' : 'Pay with Stripe'}
         </Button>
