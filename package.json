@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "dev:payments": "node --env-file=.env.local server/dev.mjs"
+    "dev:payments": "node --env-file=.env.local server/dev.mjs",
+    "seed:shared": "node scripts/seedSharedDb.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
