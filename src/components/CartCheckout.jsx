@@ -63,7 +63,7 @@ function CartCheckout() {
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         {!auth.currentUser && <Alert severity="info" sx={{ mb: 2 }}>Log in to pay for your items.</Alert>}
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Secure card payment in CAD. Featured demo items cannot be purchased.
+          Secure payment in CAD with Stripe.
         </Typography>
         <Button
           fullWidth

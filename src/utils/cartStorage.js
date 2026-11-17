@@ -1,6 +1,7 @@
 import { getStock } from './stock.js';
 
 const STORAGE_KEY = 'notmarketplace-carts';
+const OLD_PRODUCT_IDS = { 1: 'bicycle', 2: 'desk-chair', 3: 'books' };
 
 function validItem(item) {
   return item && (typeof item.id === 'string' || typeof item.id === 'number')
@@ -17,7 +18,11 @@ export function loadCarts(storage) {
       .filter(([, items]) => Array.isArray(items))
       .map(([owner, items]) => [owner, items.filter(validItem)
         .filter((item) => getStock(item) > 0)
-        .map((item) => ({ ...item, quantity: Math.min(item.quantity, getStock(item)) }))]));
+        .map((item) => ({
+          ...item,
+          id: OLD_PRODUCT_IDS[item.id] || item.id,
+          quantity: Math.min(item.quantity, getStock(item)),
+        }))]));
   } catch {
     return {};
   }

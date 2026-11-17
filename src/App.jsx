@@ -25,7 +25,6 @@ import { ensureUserProfile } from './services/profileService.js';
 import { addCartItem, loadCarts, mergeGuestCart, reconcileCartStock, saveCarts } from './utils/cartStorage.js';
 import { getStock } from './utils/stock.js';
 import { subscribeToProducts } from './services/productService.js';
-import { SAMPLE_PRODUCTS } from './data/sampleData.js';
 
 const EMPTY_FILTERS = { item: '', category: '', minPrice: '', maxPrice: '', condition: '' };
 
@@ -34,7 +33,7 @@ function App() {
   const navigate = useNavigate();
   const page = pathname.replace(/\/+$/, '') || '/';
   const [carts, setCarts] = useState(() => loadCarts());
-  const [products, setProducts] = useState(SAMPLE_PRODUCTS);
+  const [products, setProducts] = useState([]);
   const [productsError, setProductsError] = useState('');
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [draftFilters, setDraftFilters] = useState(EMPTY_FILTERS);
@@ -82,12 +81,12 @@ function App() {
 
   useEffect(() => {
     return subscribeToProducts((listedProducts, fromCache) => {
-      const availableProducts = [...listedProducts, ...SAMPLE_PRODUCTS];
+      const availableProducts = listedProducts;
       setProducts(availableProducts);
       setProductsError('');
       if (!fromCache) setCarts((current) => reconcileCartStock(current, availableProducts));
     }, () => {
-      setProductsError('Unable to load items listed by users. Showing featured items only.');
+      setProductsError('Unable to load marketplace items. Please refresh and try again.');
     });
   }, []);
 
