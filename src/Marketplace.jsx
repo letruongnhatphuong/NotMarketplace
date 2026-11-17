@@ -15,7 +15,9 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import CheckIcon from '@mui/icons-material/Check';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 import CartContext from './context/CartContext'
+import FavouritesContext from './context/FavouritesContext.js';
 import { Link } from 'react-router-dom';
 import { getUsername } from './services/profileService.js';
 import { getStock } from './utils/stock.js';
@@ -30,10 +32,10 @@ function matchesFilters(product, filters) {
   return true;
 }
 
-const Marketplace = ({ filters, products, loadError }) => {
+const Marketplace = ({ filters, products, loadError, user }) => {
 
   const { cartItems, handleAddToCart, cartReady } = useContext(CartContext);
-  const [favourites, setFavourites] = useState([]);
+  const { isFavourite, toggleFavourite } = useContext(FavouritesContext);
   const [addedItem, setAddedItem] = useState(null);
   const [sellerNames, setSellerNames] = useState({});
 
@@ -52,14 +54,6 @@ const Marketplace = ({ filters, products, loadError }) => {
 
     loadSellerNames();
   }, [products]);
-
-  const handleFavourite = (id) => {
-    if (favourites.includes(id)) {
-      setFavourites(favourites.filter((favouriteId) => favouriteId !== id));
-    } else {
-      setFavourites([...favourites, id]);
-    }
-  }
 
   return (
     <Box component="section">
@@ -85,7 +79,9 @@ const Marketplace = ({ filters, products, loadError }) => {
       >
         {
           items.map((item) => {
-            const isFavourite = favourites.includes(item.id);
+            const isSaved = isFavourite(item.id);
+            // Buying your own listing makes no sense (checkout refuses it too).
+            const isOwnListing = Boolean(user && item.ownerId === user.uid);
             const cartEntry = cartItems.find((cartItem) => cartItem.id === item.id);
             const stock = getStock(item);
             const limitReached = (cartEntry?.quantity || 0) >= stock;
@@ -124,13 +120,24 @@ const Marketplace = ({ filters, products, loadError }) => {
                   <IconButton
                     color="error"
                     aria-label={`Favourite ${item.name}`}
-                    aria-pressed={isFavourite}
-                    onClick={() => handleFavourite(item.id)}
+                    aria-pressed={isSaved}
+                    onClick={() => toggleFavourite(item.id)}
                   >
-                    {isFavourite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                    {isSaved ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                   </IconButton>
                 </CardContent>
                 <CardActions>
+                  {isOwnListing ? (
+                    <Button
+                      fullWidth
+                      component={Link}
+                      to="/sell"
+                      variant="outlined"
+                      startIcon={<StorefrontIcon />}
+                    >
+                      Your listing
+                    </Button>
+                  ) : (
                   <Button
                     fullWidth
                     disabled={!cartReady || limitReached || typeof item.id === 'number'}
@@ -148,6 +155,7 @@ const Marketplace = ({ filters, products, loadError }) => {
                         : 'Added to cart'
                       : 'Add to cart'}
                   </Button>
+                  )}
                 </CardActions>
               </Card>
             )
