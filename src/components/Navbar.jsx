@@ -1,14 +1,16 @@
 import { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AppBar, Badge, Box, Button, Container, IconButton, Menu, MenuItem, Toolbar } from '@mui/material';
+import { AppBar, Badge, Box, Button, Container, Divider, IconButton, Menu, MenuItem, Toolbar } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CartContext from '../context/CartContext.js';
+import FavouritesContext from '../context/FavouritesContext.js';
 import SellButton from './SellButton.jsx';
 
 function Navbar({ user, authReady, loggingOut, onLogout, onHome }) {
   const [menuAnchor, setMenuAnchor] = useState(null);
   const { cartItems } = useContext(CartContext);
   const cartCount = cartItems.reduce((total, item) => total + (item.quantity || 1), 0);
+  const { favouriteIds } = useContext(FavouritesContext);
 
   let userName = '';
   if (user) {
@@ -57,9 +59,16 @@ function Navbar({ user, authReady, loggingOut, onLogout, onHome }) {
                 onClose={closeMenu}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
                 transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-                slotProps={{ paper: { sx: { width: menuAnchor ? menuAnchor.offsetWidth : 'auto' } } }}
+                slotProps={{ paper: { sx: { minWidth: menuAnchor ? Math.max(menuAnchor.offsetWidth, 180) : 'auto' } } }}
               >
                 <MenuItem component={Link} to="/user/profile" onClick={closeMenu}>Profile</MenuItem>
+                <MenuItem component={Link} to="/favourites" onClick={closeMenu}>
+                  Favourites{favouriteIds.length > 0 ? ` (${favouriteIds.length})` : ''}
+                </MenuItem>
+                <Divider />
+                <MenuItem component={Link} to="/revenue" onClick={closeMenu}>Revenue</MenuItem>
+                <MenuItem component={Link} to="/sold" onClick={closeMenu}>Sold</MenuItem>
+                <Divider />
                 <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>Log out</MenuItem>
               </Menu>
             </>
