@@ -1,5 +1,7 @@
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import CartContext from './context/CartContext.js';
+import FavouritesContext from './context/FavouritesContext.js';
+import useFavourites from './hooks/useFavourites.js';
 import Navbar from './components/Navbar.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import { useEffect, useState } from 'react';
@@ -20,6 +22,7 @@ import Orders from './Orders.jsx';
 import UserProfile from './UserProfile.jsx';
 import Revenue from './Revenue.jsx';
 import Sold from './Sold.jsx';
+import Favourites from './Favourites.jsx';
 import { ensureUserProfile } from './services/profileService.js';
 import { addCartItem, loadCarts, mergeGuestCart, reconcileCartStock, saveCarts } from './utils/cartStorage.js';
 import { getStock } from './utils/stock.js';
@@ -43,6 +46,7 @@ function App() {
   }
   function handleAddToCart(item) {
     if (!authReady) return;
+    if (user && item.ownerId === user.uid) return; // sellers can't buy their own listing
     const owner = user ? user.uid : 'guest';
     setCarts((current) => ({
       ...current,
@@ -77,6 +81,7 @@ function App() {
   const [loggingOut, setLoggingOut] = useState(false);
   const [authError, setAuthError] = useState('');
   const cartItems = authReady ? carts[user ? user.uid : 'guest'] || [] : [];
+  const favourites = useFavourites(user, authReady);
 
   useEffect(() => {
     return subscribeToProducts((listedProducts, fromCache) => {
@@ -132,6 +137,7 @@ function App() {
 
   return (
     <CartContext.Provider value={{ cartItems, products, handleAddToCart, handleClearCart, handleUpdateQuantity, handleRemoveFromCart, cartReady: authReady }}>
+    <FavouritesContext.Provider value={favourites}>
       <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         {page !== '/' && (
           <Navbar
@@ -150,13 +156,14 @@ function App() {
             {authError && <Alert severity="error" sx={{ mb: 2 }}>{authError}</Alert>}
             <Routes>
               <Route path="/" element={<Login />} />
-              <Route path="/marketplace" element={<Marketplace filters={filters} products={products} loadError={productsError} />} />
+              <Route path="/marketplace" element={<Marketplace filters={filters} products={products} loadError={productsError} user={user} />} />
               <Route path="/payment" element={<PaymentResult user={user} authReady={authReady} />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/sell" element={<Sell user={user} authReady={authReady} />} />
               <Route path="/orders" element={<Orders user={user} authReady={authReady} />} />
               <Route path="/revenue" element={<Revenue user={user} authReady={authReady} />} />
               <Route path="/sold" element={<Sold user={user} authReady={authReady} />} />
+              <Route path="/favourites" element={<Favourites user={user} />} />
               <Route path="/user/profile" element={<UserProfile user={user} authReady={authReady} />} />
               <Route path="/user/profile/:userId" element={<UserProfile user={user} authReady={authReady} />} />
               <Route path="*" element={<Typography component="h1" variant="h5">Page not found</Typography>} />
@@ -164,6 +171,7 @@ function App() {
           </Container>
         </Box>
       </Box>
+    </FavouritesContext.Provider>
     </CartContext.Provider>
   );
 }
