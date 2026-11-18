@@ -10,7 +10,12 @@ function SellButton() {
       to="/sell"
       variant="contained"
       startIcon={<AddIcon />}
-      sx={{ whiteSpace: 'nowrap' }}
+      sx={{
+        whiteSpace: 'nowrap',
+        bgcolor: 'secondary.main',
+        color: 'primary.main',
+        '&:hover': { bgcolor: '#155C33' },
+      }}
     >
       Sell an item
     </Button>

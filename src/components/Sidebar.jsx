@@ -29,7 +29,7 @@ const CONDITIONS = ['New', 'Used - Like new', 'Used - Good', 'Used - Fair'];
 
 const titleStyle = {
   bgcolor: 'primary.main',
-  color: 'white',
+  color: 'primary.contrastText',
   fontWeight: 'bold',
   textTransform: 'uppercase',
   px: 2,

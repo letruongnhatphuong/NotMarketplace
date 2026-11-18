@@ -63,7 +63,12 @@ const Marketplace = ({ filters, products, loadError }) => {
 
   return (
     <Box component="section">
-      <Typography variant="h5" component="h1" gutterBottom>
+      <Typography
+        variant="h5"
+        component="h1"
+        gutterBottom
+        sx={{ display: 'inline-block', pb: 0.5, borderBottom: '4px solid', borderColor: 'primary.main' }}
+      >
         Not Marketplace
       </Typography>
       <Typography color="text.secondary" sx={{ mb: 3 }}>
@@ -106,7 +111,7 @@ const Marketplace = ({ filters, products, loadError }) => {
                 )}
                 <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box>
-                    <Typography fontWeight="bold">${item.price}</Typography>
+                    <Typography fontWeight="bold" sx={{ color: 'success.main' }}>${item.price}</Typography>
                     <Typography component="h3" variant="subtitle1">{item.name}</Typography>
                     <Typography variant="body2" color="text.secondary">
                       {stock === 0 ? 'Out of stock' : `${stock} available`}

@@ -100,7 +100,7 @@ function Cart() {
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Box>
-                  <Typography fontWeight="bold" sx={{ minWidth: 80, textAlign: 'right' }}>
+                  <Typography fontWeight="bold" sx={{ minWidth: 80, textAlign: 'right', color: 'success.main' }}>
                     {formatMoney(lineTotal(item))}
                   </Typography>
                 </CardContent>

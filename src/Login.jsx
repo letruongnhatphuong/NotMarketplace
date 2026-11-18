@@ -126,7 +126,7 @@ function Login() {
       <Stack spacing={1} sx={{ alignItems: 'center', mb: 3, textAlign: 'center' }}>
         <Box
           component="img"
-          src="/not-marketplace.png"
+          src="/not-marketplace-maroon.png"
           alt="Not Marketplace logo"
           sx={{ width: { xs: 140, sm: 180 }, height: 'auto', display: 'block' }}
         />

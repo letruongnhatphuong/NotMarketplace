@@ -119,7 +119,7 @@ function UserProfile({ user, authReady }) {
         <Card sx={{ borderRadius: 3 }}>
           <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-              <Avatar sx={{ width: 72, height: 72, fontSize: 32, bgcolor: 'primary.main' }}>
+              <Avatar sx={{ width: 72, height: 72, fontSize: 32, bgcolor: 'primary.main', color: 'primary.contrastText' }}>
                 {username.charAt(0).toUpperCase()}
               </Avatar>
               <Box sx={{ minWidth: 0 }}>

@@ -25,18 +25,36 @@ function Navbar({ user, authReady, loggingOut, onLogout, onHome }) {
   }
 
   return (
-    <AppBar position="static" color="inherit" elevation={1}>
+    <AppBar
+      position="static"
+      elevation={1}
+      sx={{
+        bgcolor: 'primary.main',
+        color: 'primary.contrastText',
+        borderBottom: '4px solid',
+        borderColor: 'secondary.main',
+      }}
+    >
       <Container>
         <Toolbar component="nav" disableGutters sx={{ gap: 2, flexWrap: 'wrap', py: 2 }}>
           <Box component={Link} to="/marketplace" onClick={onHome} aria-label="Marketplace home" sx={{ display: 'inline-flex', flexShrink: 0 }}>
-            <Box component="img" src="/not-marketplace.png" width={72} height={72} alt="" />
+            <Box component="img" src="/not-marketplace-cream-maroon.png" width={72} height={72} alt="" />
           </Box>
           <Box sx={{ flexGrow: 1 }} />
 
           <SellButton />
 
           <IconButton component={Link} to="/cart" aria-label={`Cart, ${cartCount} items`} title="Cart">
-            <Badge badgeContent={cartCount} color="primary">
+            <Badge
+              badgeContent={cartCount}
+              sx={{
+                '& .MuiBadge-badge': {
+                  backgroundColor: 'secondary.main',
+                  color: 'secondary.contrastText',
+                  fontWeight: 700,
+                },
+              }}
+            >
               <ShoppingCartIcon />
             </Badge>
           </IconButton>
@@ -44,6 +62,7 @@ function Navbar({ user, authReady, loggingOut, onLogout, onHome }) {
           {authReady && user && (
             <>
               <Button
+                color="inherit"
                 variant={menuAnchor ? 'contained' : 'outlined'}
                 disabled={loggingOut}
                 aria-haspopup="true"
@@ -64,7 +83,7 @@ function Navbar({ user, authReady, loggingOut, onLogout, onHome }) {
               </Menu>
             </>
           )}
-          {authReady && !user && <Button component={Link} to="/" variant="outlined">Log in</Button>}
+          {authReady && !user && <Button component={Link} to="/" variant="outlined" color="inherit">Log in</Button>}
         </Toolbar>
       </Container>
     </AppBar>
