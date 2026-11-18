@@ -170,6 +170,13 @@ function App() {
             </Routes>
           </Container>
         </Box>
+
+        <Box
+          component="footer"
+          sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', py: 2, textAlign: 'center' }}
+        >
+          <Typography variant="body2">Not Marketplace — a place to find your next favorite thing.</Typography>
+        </Box>
       </Box>
     </FavouritesContext.Provider>
     </CartContext.Provider>

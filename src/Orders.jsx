@@ -86,7 +86,7 @@ function Orders({ user, authReady }) {
                   {new Date(order.createdAt).toLocaleDateString()}
                 </Typography>
               </Box>
-              <Typography fontWeight="bold">${order.price}</Typography>
+              <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>${order.price}</Typography>
               <Chip size="small" label={order.status} color={STATUS_COLORS[order.status] || 'default'} />
               <Button component={Link} to={`/user/profile/${order.sellerId}`} variant="outlined" size="small">
                 View seller

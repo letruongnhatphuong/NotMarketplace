@@ -107,7 +107,7 @@ const Marketplace = ({ filters, products, loadError, user }) => {
                 )}
                 <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box>
-                    <Typography fontWeight="bold" sx={{ color: 'success.main' }}>${item.price}</Typography>
+                    <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>${item.price}</Typography>
                     <Typography component="h3" variant="subtitle1">{item.name}</Typography>
                     <Typography variant="body2" color="text.secondary">
                       {stock === 0 ? 'Out of stock' : `${stock} available`}
@@ -123,7 +123,7 @@ const Marketplace = ({ filters, products, loadError, user }) => {
                     )}
                   </Box>
                   <IconButton
-                    color="error"
+                    color="warning"
                     aria-label={`Favourite ${item.name}`}
                     aria-pressed={isSaved}
                     onClick={() => toggleFavourite(item.id)}

@@ -106,7 +106,7 @@ function MyProductList({ products, onDelete, onMarkSold }) {
               <Box sx={{ bgcolor: 'grey.100', textAlign: 'center', p: 3, fontSize: 64 }}>📦</Box>
             )}
             <CardContent sx={{ flexGrow: 1 }}>
-              <Typography fontWeight="bold">{formatPrice(product.price)}</Typography>
+              <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>{formatPrice(product.price)}</Typography>
               <Typography component="h3" variant="subtitle1">{product.name}</Typography>
               <Typography variant="body2" color="text.secondary">{getStock(product)} available</Typography>
               <Stack direction="row" spacing={1} sx={{ my: 1, flexWrap: 'wrap', rowGap: 1 }}>

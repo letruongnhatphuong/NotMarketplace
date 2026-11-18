@@ -29,18 +29,18 @@ function Navbar({ user, authReady, loggingOut, onLogout, onHome }) {
   return (
     <AppBar
       position="static"
-      elevation={1}
+      elevation={0}
       sx={{
-        bgcolor: 'primary.main',
-        color: 'primary.contrastText',
-        borderBottom: '4px solid',
-        borderColor: 'secondary.main',
+        bgcolor: 'background.navbar',
+        color: 'text.primary',
+        borderBottom: '1px solid',
+        borderColor: 'divider',
       }}
     >
       <Container>
         <Toolbar component="nav" disableGutters sx={{ gap: 2, flexWrap: 'wrap', py: 2 }}>
           <Box component={Link} to="/marketplace" onClick={onHome} aria-label="Marketplace home" sx={{ display: 'inline-flex', flexShrink: 0 }}>
-            <Box component="img" src="/not-marketplace-cream-maroon.png" width={72} height={72} alt="" />
+            <Box component="img" src="/not-marketplace-emerald.png" width={72} height={72} alt="" />
           </Box>
           <Box sx={{ flexGrow: 1 }} />
 
@@ -51,8 +51,8 @@ function Navbar({ user, authReady, loggingOut, onLogout, onHome }) {
               badgeContent={cartCount}
               sx={{
                 '& .MuiBadge-badge': {
-                  backgroundColor: 'secondary.main',
-                  color: 'secondary.contrastText',
+                  backgroundColor: 'primary.main',
+                  color: 'primary.contrastText',
                   fontWeight: 700,
                 },
               }}

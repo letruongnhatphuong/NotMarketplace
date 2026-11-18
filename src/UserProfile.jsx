@@ -178,7 +178,7 @@ function UserProfile({ user, authReady }) {
                   <CardContent>
                     <Typography component="h3" variant="subtitle1">{order.productName}</Typography>
                     <Typography variant="body2" color="text.secondary">Qty sold: {getSoldQuantity(order)}</Typography>
-                    <Typography fontWeight="bold">${order.price}</Typography>
+                    <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>${order.price}</Typography>
                     <Typography variant="caption" color="text.secondary">
                       Sold {new Date(order.createdAt).toLocaleDateString()}
                     </Typography>

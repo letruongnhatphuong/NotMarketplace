@@ -102,7 +102,7 @@ function Favourites({ user }) {
                 )}
                 <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexGrow: 1 }}>
                   <Box sx={{ minWidth: 0 }}>
-                    <Typography fontWeight="bold">{formatMoney(Number(item.price))}</Typography>
+                    <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>{formatMoney(Number(item.price))}</Typography>
                     <Typography component="h3" variant="subtitle1">{item.name}</Typography>
                     <Typography variant="body2" color="text.secondary">
                       {stock === 0 ? 'Out of stock' : `${stock} available`}
@@ -110,7 +110,7 @@ function Favourites({ user }) {
                     {item.condition && <Chip size="small" label={item.condition} sx={{ my: 0.5 }} />}
                   </Box>
                   <IconButton
-                    color="error"
+                    color="warning"
                     aria-label={`Remove ${item.name} from favourites`}
                     onClick={() => toggleFavourite(item.id)}
                   >

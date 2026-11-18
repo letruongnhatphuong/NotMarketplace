@@ -47,7 +47,7 @@ function CartCheckout() {
           <Divider />
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Typography fontWeight="bold">Total</Typography>
-            <Typography fontWeight="bold" sx={{ color: 'success.main' }}>{formatMoney(total)}</Typography>
+            <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>{formatMoney(total)}</Typography>
           </Box>
         </Stack>
         {demoItems.length > 0 && (

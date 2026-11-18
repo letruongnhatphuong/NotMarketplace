@@ -76,7 +76,7 @@ function Sold({ user, authReady }) {
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 1 }}>
                   <Typography component="h3" variant="subtitle1">{sale.productName}</Typography>
-                  <Typography fontWeight="bold">{formatMoney(Number(sale.price))}</Typography>
+                  <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>{formatMoney(Number(sale.price))}</Typography>
                 </Box>
                 <Typography variant="body2" color="text.secondary">Qty sold: {getSoldQuantity(sale)}</Typography>
                 <Stack direction="row" spacing={1} sx={{ my: 1, flexWrap: 'wrap', rowGap: 1 }}>

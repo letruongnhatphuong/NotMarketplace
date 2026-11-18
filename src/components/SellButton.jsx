@@ -12,9 +12,9 @@ function SellButton() {
       startIcon={<AddIcon />}
       sx={{
         whiteSpace: 'nowrap',
-        bgcolor: 'secondary.main',
-        color: 'primary.main',
-        '&:hover': { bgcolor: '#155C33' },
+        bgcolor: 'primary.main',
+        color: 'primary.contrastText',
+        '&:hover': { bgcolor: 'primary.dark' },
       }}
     >
       Sell an item

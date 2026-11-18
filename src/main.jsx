@@ -6,20 +6,29 @@ import App from './App.jsx';
 
 const theme = createTheme({
   palette: {
-    // Retail palette: maroon header, green buy actions, near-black text.
-    primary: { main: '#8C1D2F', contrastText: '#FFF7F2' },
-    secondary: { main: '#1E7A46', contrastText: '#FFFFFF' },
-    warning: { main: '#F7E4DF', contrastText: '#6B1620' },
-    success: { main: '#1E7A46', contrastText: '#FFFFFF' },
-    background: { default: '#FFFBF9', paper: '#FFFFFF' },
-    text: { primary: '#1A1414' },
+    // Emerald + Cream.
+    primary: { main: '#14532D', dark: '#166534', light: '#16A34A', contrastText: '#FFFFFF' },
+    secondary: { main: '#F1EBDD', contrastText: '#1C2921' },
+    warning: { main: '#C76B4A', contrastText: '#FFFFFF' },
+    success: { main: '#16A34A', contrastText: '#FFFFFF' },
+    info: { main: '#D6A85F', contrastText: '#1C2921' },
+    background: { default: '#F5F0E6', paper: '#FFFFFF', navbar: '#FAF8F2' },
+    text: { primary: '#1C2921', secondary: '#526157' },
+    divider: '#E7E2D8',
   },
   components: {
-    MuiChip: { defaultProps: { color: 'warning' } },
-    // Maroon strip across the top of every card.
+    // Soft cream condition chips.
+    MuiChip: { defaultProps: { color: 'secondary' } },
+    // White product cards with the palette's border gray.
     MuiCard: {
       styleOverrides: {
-        root: { borderTop: '4px solid #8C1D2F' },
+        root: { border: '1px solid #E7E2D8' },
+      },
+    },
+    // Search / form fields: white with border gray.
+    MuiOutlinedInput: {
+      styleOverrides: {
+        notchedOutline: { borderColor: '#E7E2D8' },
       },
     },
   },
