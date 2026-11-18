@@ -79,11 +79,9 @@ function Favourites({ user }) {
             const stock = getStock(item);
             const limitReached = (cartEntry?.quantity || 0) >= stock;
             const isOwnListing = Boolean(user && item.ownerId === user.uid);
-            const isDemo = typeof item.id === 'number';
 
             let cartLabel = 'Add to cart';
-            if (isDemo) cartLabel = 'Demo item';
-            else if (stock === 0) cartLabel = 'Out of stock';
+            if (stock === 0) cartLabel = 'Out of stock';
             else if (cartEntry) cartLabel = 'Added to cart';
 
             return (
@@ -128,7 +126,7 @@ function Favourites({ user }) {
                       variant="contained"
                       color={cartEntry ? 'success' : 'primary'}
                       startIcon={cartEntry ? <CheckIcon /> : <AddShoppingCartIcon />}
-                      disabled={!cartReady || limitReached || isDemo}
+                      disabled={!cartReady || limitReached}
                       onClick={() => {
                         handleAddToCart(item);
                         setAddedItem(item);
