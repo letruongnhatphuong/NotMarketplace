@@ -73,7 +73,7 @@ function CartCheckout() {
           onClick={checkout}
           disabled={loading || !auth.currentUser || demoItems.length > 0}
         >
-          {loading ? 'Opening secure checkout…' : 'Pay with Stripe'}
+          {loading ? 'Opening secure checkout…' : 'Checkout'}
         </Button>
       </CardContent>
 
