@@ -145,7 +145,7 @@ const Marketplace = ({ filters, products, loadError, user }) => {
                   ) : (
                   <Button
                     fullWidth
-                    disabled={!cartReady || limitReached || typeof item.id === 'number'}
+                    disabled={!cartReady || limitReached}
                     variant="contained"
                     color={cartEntry ? 'success' : 'primary'}
                     startIcon={cartEntry ? <CheckIcon /> : <AddShoppingCartIcon />}
@@ -154,7 +154,7 @@ const Marketplace = ({ filters, products, loadError, user }) => {
                       setAddedItem(item);
                     }}
                   >
-                    {typeof item.id === 'number' ? 'Demo item' : stock === 0 ? 'Out of stock' : cartEntry
+                    {stock === 0 ? 'Out of stock' : cartEntry
                       ? cartEntry.quantity > 1
                         ? `Added (${cartEntry.quantity}) to cart`
                         : 'Added to cart'

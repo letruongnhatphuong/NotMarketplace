@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import {
+  browserLocalPersistence,
+  browserSessionPersistence,
+  setPersistence,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -30,6 +33,7 @@ function Login() {
   const [passwordError, setPasswordError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const isSignUp = mode === 'signup';
   const [messageType, setMessageType] = useState('error');
 
@@ -93,6 +97,11 @@ function Login() {
           return;
         }
       } else {
+        if (rememberMe) {
+          await setPersistence(auth, browserLocalPersistence);
+        } else {
+          await setPersistence(auth, browserSessionPersistence);
+        }
         const credential = await signInWithEmailAndPassword(auth, email, password);
         try {
           await ensureUserProfile(credential.user);
@@ -195,6 +204,20 @@ function Login() {
               }
               label="Show password"
             />
+
+            {!isSignUp && (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="rememberMe"
+                    checked={rememberMe}
+                    onChange={(event) => setRememberMe(event.target.checked)}
+                    disabled={submitting}
+                  />
+                }
+                label="Remember me"
+              />
+            )}
 
             <Button disabled={submitting} type="submit" variant="contained" size="large" fullWidth>
               {submitting ? 'Please wait…' : isSignUp ? 'Create account' : 'Log in'}

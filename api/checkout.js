@@ -15,12 +15,14 @@ export default async function handler(req, res) {
       return res.json({ ...result, items: checkout.items.map(({ productId, quantity }) => ({ productId, quantity })) });
     }
     const entries = req.body?.items;
+
     if (!Array.isArray(entries) || !entries.length || entries.length > 50) return res.status(400).json({ error: 'Choose between 1 and 50 items.' });
     const productIds = [];
     const items = [];
+
     for (const entry of entries) {
       if (typeof entry.id !== 'string' || !entry.id || entry.id.includes('/') || productIds.includes(entry.id) || !Number.isInteger(entry.quantity) || entry.quantity < 1 || entry.quantity > 9999) {
-        return res.status(400).json({ error: 'Your cart contains invalid or demo items. Please use listings added by users.' });
+        return res.status(400).json({ error: 'Some cart details are invalid. Please refresh your cart.' });
       }
       productIds.push(entry.id);
       const snap = await db.collection('products').doc(entry.id).get();

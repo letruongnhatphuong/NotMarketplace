@@ -64,7 +64,6 @@ function Cart() {
                   )}
                   <Box sx={{ flexGrow: 1 }}>
                     <Typography component="h2" variant="subtitle1">{item.name}</Typography>
-                    {typeof item.id === 'number' && <Chip size="small" label="Demo item — cannot be purchased" color="warning" sx={{ mr: 1 }} />}
                     {item.condition && <Chip size="small" label={item.condition} sx={{ mt: 0.5 }} />}
                     <Typography variant="body2" color="text.secondary">
                       {formatMoney(Number(item.price))} each
