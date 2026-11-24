@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
 // Entry point to the Sell page, shown in the site header.
@@ -9,6 +9,7 @@ function SellButton() {
       component={Link}
       to="/sell"
       variant="contained"
+      aria-label="Sell an item"
       startIcon={<AddIcon />}
       sx={{
         whiteSpace: 'nowrap',
@@ -17,7 +18,8 @@ function SellButton() {
         '&:hover': { bgcolor: 'primary.dark' },
       }}
     >
-      Sell an item
+      Sell
+      <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' }, whiteSpace: 'pre' }}> an item</Box>
     </Button>
   );
 }
