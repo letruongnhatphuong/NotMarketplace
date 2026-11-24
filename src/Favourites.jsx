@@ -8,6 +8,7 @@ import {
   CardActions,
   CardContent,
   Chip,
+  CircularProgress,
   IconButton,
   Snackbar,
   Typography,
@@ -19,14 +20,15 @@ import CheckIcon from '@mui/icons-material/Check';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import CartContext from './context/CartContext.js';
 import FavouritesContext from './context/FavouritesContext.js';
-import { formatMoney } from './utils/salesUtils.js';
+import { formatPrice } from './utils/salesUtils.js';
 import { getStock } from './utils/stock.js';
 
 // The wish list: every product saved with the heart icon on the marketplace.
-function Favourites({ user }) {
+function Favourites({ user, productsLoaded, loadError }) {
   const { cartItems, products, handleAddToCart, cartReady } = useContext(CartContext);
   const { favouriteIds, toggleFavourite, removeFavourites } = useContext(FavouritesContext);
   const [addedItem, setAddedItem] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   // Saved products that are still for sale, in the order they were saved (newest first).
   const savedProducts = [...favouriteIds]
@@ -36,7 +38,7 @@ function Favourites({ user }) {
 
   // Saved ids that are no longer listed (sold out or removed by the seller).
   // Only known once the marketplace has loaded.
-  const unavailableIds = products.length > 0
+  const unavailableIds = productsLoaded
     ? favouriteIds.filter((id) => !products.some((product) => product.id === id))
     : [];
 
@@ -64,7 +66,11 @@ function Favourites({ user }) {
         </Alert>
       )}
 
-      {savedProducts.length === 0 ? (
+      {loadError && <Alert severity="warning" sx={{ mb: 2 }}>{loadError}</Alert>}
+
+      {!productsLoaded ? (
+        !loadError && <CircularProgress aria-label="Loading your favourites" />
+      ) : savedProducts.length === 0 ? (
         <Card sx={{ borderRadius: 3, p: 4, textAlign: 'center' }}>
           <Typography sx={{ fontSize: 48 }}>🤍</Typography>
           <Typography color="text.secondary" sx={{ mb: 2 }}>
@@ -73,7 +79,7 @@ function Favourites({ user }) {
           <Button component={Link} to="/marketplace" variant="contained">Browse marketplace</Button>
         </Card>
       ) : (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 240px), 1fr))', gap: 2 }}>
           {savedProducts.map((item) => {
             const cartEntry = cartItems.find((cartItem) => cartItem.id === item.id);
             const stock = getStock(item);
@@ -82,7 +88,8 @@ function Favourites({ user }) {
 
             let cartLabel = 'Add to cart';
             if (stock === 0) cartLabel = 'Out of stock';
-            else if (cartEntry) cartLabel = 'Added to cart';
+            else if (cartEntry && limitReached) cartLabel = `In cart (${cartEntry.quantity})`;
+            else if (cartEntry) cartLabel = `In cart (${cartEntry.quantity}) · Add 1`;
 
             return (
               <Card component="article" key={item.id} sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -91,16 +98,16 @@ function Favourites({ user }) {
                     component="img"
                     src={item.image}
                     alt={item.name}
-                    sx={{ width: '100%', height: 144, objectFit: 'cover', display: 'block' }}
+                    sx={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', display: 'block' }}
                   />
                 ) : (
-                  <Box sx={{ bgcolor: 'grey.100', textAlign: 'center', p: 3, fontSize: 64 }}>
+                  <Box sx={{ bgcolor: 'grey.100', aspectRatio: '4 / 3', display: 'grid', placeItems: 'center', fontSize: 64 }}>
                     {item.emoji || '📦'}
                   </Box>
                 )}
                 <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexGrow: 1 }}>
                   <Box sx={{ minWidth: 0 }}>
-                    <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>{formatMoney(Number(item.price))}</Typography>
+                    <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>{formatPrice(item.price)}</Typography>
                     <Typography component="h3" variant="subtitle1">{item.name}</Typography>
                     <Typography variant="body2" color="text.secondary">
                       {stock === 0 ? 'Out of stock' : `${stock} available`}
@@ -130,6 +137,7 @@ function Favourites({ user }) {
                       onClick={() => {
                         handleAddToCart(item);
                         setAddedItem(item);
+                        setSnackbarOpen(true);
                       }}
                     >
                       {cartLabel}
@@ -143,12 +151,12 @@ function Favourites({ user }) {
       )}
 
       <Snackbar
-        open={Boolean(addedItem)}
+        open={snackbarOpen}
         autoHideDuration={3000}
-        onClose={() => setAddedItem(null)}
+        onClose={() => setSnackbarOpen(false)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       >
-        <Alert variant="filled" severity="success" onClose={() => setAddedItem(null)} sx={{ width: '100%' }}>
+        <Alert variant="filled" severity="success" onClose={() => setSnackbarOpen(false)} sx={{ width: '100%' }}>
           {addedItem && `Added ${addedItem.name} to cart`}
         </Alert>
       </Snackbar>
