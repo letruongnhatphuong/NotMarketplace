@@ -89,12 +89,13 @@ function Sell({ user, authReady }) {
 
         <Box component="section" aria-labelledby="my-listings-heading">
           <Typography id="my-listings-heading" component="h2" variant="h6" gutterBottom>
-            Your listings{!loading && ` (${userProducts.items.length})`}
+            Your listings{!loading && !userProducts.error && ` (${userProducts.items.length})`}
           </Typography>
           {userProducts.error && <Alert severity="error" sx={{ mb: 2 }}>{userProducts.error}</Alert>}
           {loading
             ? <CircularProgress aria-label="Loading your items" />
-            : <MyProductList products={userProducts.items} onDelete={handleDelete} onMarkSold={handleMarkSold} />}
+            : (!userProducts.error || userProducts.items.length > 0)
+              && <MyProductList products={userProducts.items} onDelete={handleDelete} onMarkSold={handleMarkSold} />}
         </Box>
       </Box>
     );
