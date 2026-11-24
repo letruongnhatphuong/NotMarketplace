@@ -1,4 +1,4 @@
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import CartContext from './context/CartContext.js';
 import FavouritesContext from './context/FavouritesContext.js';
 import useFavourites from './hooks/useFavourites.js';
@@ -10,6 +10,7 @@ import { auth } from './firebase.js';
 import {
   Alert,
   Box,
+  Button,
   Container,
   Typography,
 } from '@mui/material';
@@ -28,6 +29,19 @@ import { addCartItem, loadCarts, mergeGuestCart, reconcileCartStock, saveCarts }
 import { getStock } from './utils/stock.js';
 import { subscribeToProducts } from './services/productService.js';
 
+const PAGE_TITLES = {
+  '/': 'Log in',
+  '/marketplace': 'Items for sale',
+  '/cart': 'Your cart',
+  '/payment': 'Payment status',
+  '/sell': 'Sell',
+  '/orders': 'Your orders',
+  '/revenue': 'Revenue',
+  '/sold': 'Sold',
+  '/favourites': 'Favourites',
+  '/user/profile': 'Profile',
+};
+
 const EMPTY_FILTERS = { item: '', category: '', minPrice: '', maxPrice: '', condition: '' };
 
 function App() {
@@ -37,6 +51,7 @@ function App() {
   const [carts, setCarts] = useState(() => loadCarts());
   const [products, setProducts] = useState([]);
   const [productsError, setProductsError] = useState('');
+  const [productsLoaded, setProductsLoaded] = useState(false);
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [draftFilters, setDraftFilters] = useState(EMPTY_FILTERS);
 
@@ -88,11 +103,17 @@ function App() {
       const availableProducts = listedProducts;
       setProducts(availableProducts);
       setProductsError('');
+      if (!fromCache || listedProducts.length > 0) setProductsLoaded(true);
       if (!fromCache) setCarts((current) => reconcileCartStock(current, availableProducts));
     }, () => {
       setProductsError('Unable to load marketplace items. Please refresh and try again.');
     });
   }, []);
+
+  useEffect(() => {
+    const pageTitle = page.startsWith('/user/profile/') ? 'Seller profile' : PAGE_TITLES[page] || 'Page not found';
+    document.title = `${pageTitle} | Not Marketplace`;
+  }, [page]);
 
   useEffect(() => {
     saveCarts(carts);
@@ -152,28 +173,37 @@ function App() {
         <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
           {page === '/marketplace' && <Sidebar filters={draftFilters} onChange={setDraftFilters} onApply={setFilters} />}
 
-          <Container component="main" sx={{ py: 4, minWidth: 0 }}>
+          <Container component="main" maxWidth={page === '/marketplace' ? 'xl' : 'lg'} sx={{ py: 4, minWidth: 0 }}>
             {authError && <Alert severity="error" sx={{ mb: 2 }}>{authError}</Alert>}
             <Routes>
               <Route path="/" element={<Login />} />
-              <Route path="/marketplace" element={<Marketplace filters={filters} products={products} loadError={productsError} user={user} />} />
+              <Route path="/marketplace" element={<Marketplace filters={filters} products={products} productsLoaded={productsLoaded} loadError={productsError} onClearFilters={handleHome} user={user} />} />
               <Route path="/payment" element={<PaymentResult user={user} authReady={authReady} />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/sell" element={<Sell user={user} authReady={authReady} />} />
               <Route path="/orders" element={<Orders user={user} authReady={authReady} />} />
               <Route path="/revenue" element={<Revenue user={user} authReady={authReady} />} />
               <Route path="/sold" element={<Sold user={user} authReady={authReady} />} />
-              <Route path="/favourites" element={<Favourites user={user} />} />
+              <Route path="/favourites" element={<Favourites user={user} productsLoaded={productsLoaded} loadError={productsError} />} />
               <Route path="/user/profile" element={<UserProfile user={user} authReady={authReady} />} />
               <Route path="/user/profile/:userId" element={<UserProfile user={user} authReady={authReady} />} />
-              <Route path="*" element={<Typography component="h1" variant="h5">Page not found</Typography>} />
+              <Route
+                path="*"
+                element={(
+                  <Box sx={{ textAlign: 'center', py: 6 }}>
+                    <Typography component="h1" variant="h5" gutterBottom>Page not found</Typography>
+                    <Typography color="text.secondary" sx={{ mb: 2 }}>This page doesn&apos;t exist or was moved.</Typography>
+                    <Button component={Link} to="/marketplace" variant="contained">Browse marketplace</Button>
+                  </Box>
+                )}
+              />
             </Routes>
           </Container>
         </Box>
 
         <Box
           component="footer"
-          sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', py: 2, textAlign: 'center' }}
+          sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', px: 2, py: 2, textAlign: 'center' }}
         >
           <Typography variant="body2">Not Marketplace — a place to find your next favorite thing.</Typography>
         </Box>
