@@ -4,6 +4,7 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  getDocsFromServer,
   onSnapshot,
   query,
   where,
@@ -58,7 +59,7 @@ export function subscribeToProducts(onChange, onError) {
 // Loads only the products created by the given user, newest first.
 export async function getUserProducts(ownerId) {
   const userProductsQuery = query(getProductsCollection(), where('ownerId', '==', ownerId));
-  const snapshot = await getDocs(userProductsQuery);
+  const snapshot = await getDocsFromServer(userProductsQuery);
   return toProducts(snapshot);
 }
 
