@@ -4,9 +4,11 @@ import {
   Box,
   Button,
   Card,
+  CardActionArea,
   CardActions,
   CardContent,
   Chip,
+  CircularProgress,
   IconButton,
   Snackbar,
   Typography,
@@ -20,7 +22,9 @@ import CartContext from './context/CartContext'
 import FavouritesContext from './context/FavouritesContext.js';
 import { Link } from 'react-router-dom';
 import { getUsername } from './services/profileService.js';
+import { formatPrice } from './utils/salesUtils.js';
 import { getStock } from './utils/stock.js';
+import ProductDetails from './components/ProductDetails.jsx';
 
 
 function matchesFilters(product, filters) {
@@ -32,11 +36,13 @@ function matchesFilters(product, filters) {
   return true;
 }
 
-const Marketplace = ({ filters, products, loadError, user }) => {
+const Marketplace = ({ filters, products, productsLoaded, loadError, onClearFilters, user }) => {
 
   const { cartItems, handleAddToCart, cartReady } = useContext(CartContext);
   const { isFavourite, toggleFavourite } = useContext(FavouritesContext);
   const [addedItem, setAddedItem] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [openProduct, setOpenProduct] = useState(null);
   const [sellerNames, setSellerNames] = useState({});
 
   const items = products.filter((product) => matchesFilters(product, filters));
@@ -66,19 +72,24 @@ const Marketplace = ({ filters, products, loadError, user }) => {
         Not Marketplace
       </Typography>
       <Typography color="text.secondary" sx={{ mb: 3 }}>
-        Items for sale
+        Items for sale{productsLoaded && ` (${items.length})`}
       </Typography>
       {loadError && <Alert severity="warning" sx={{ mb: 2 }}>{loadError}</Alert>}
-      {items.length === 0 && <Typography color="text.secondary">No items match your search.</Typography>}
+      {!productsLoaded && !loadError && <CircularProgress aria-label="Loading items" />}
+      {productsLoaded && products.length === 0 && (
+        <Typography color="text.secondary">Nothing is listed yet. Be the first to sell an item.</Typography>
+      )}
+      {productsLoaded && products.length > 0 && items.length === 0 && (
+        <Box>
+          <Typography color="text.secondary" sx={{ mb: 2 }}>No items match your search.</Typography>
+          <Button variant="outlined" onClick={onClearFilters}>Clear filters</Button>
+        </Box>
+      )}
 
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: {
-            xs: '1fr',
-            sm: 'repeat(2, 1fr)',
-            md: 'repeat(3, 1fr)',
-          },
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 240px), 1fr))',
           gap: 2,
         }}
       >
@@ -92,22 +103,24 @@ const Marketplace = ({ filters, products, loadError, user }) => {
             const limitReached = (cartEntry?.quantity || 0) >= stock;
 
             return (
-              <Card component="article" key={item.id}>
-                {item.image ? (
-                  <Box
-                    component="img"
-                    src={item.image}
-                    alt={item.name}
-                    sx={{ width: '100%', height: 144, objectFit: 'cover', display: 'block' }}
-                  />
-                ) : (
-                  <Box sx={{ bgcolor: 'grey.100', textAlign: 'center', p: 3, fontSize: 64 }}>
-                    {item.emoji || '📦'}
-                  </Box>
-                )}
-                <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Box>
-                    <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>${item.price}</Typography>
+              <Card component="article" key={item.id} sx={{ display: 'flex', flexDirection: 'column' }}>
+                <CardActionArea aria-label={`View details of ${item.name}`} onClick={() => setOpenProduct(item)}>
+                  {item.image ? (
+                    <Box
+                      component="img"
+                      src={item.image}
+                      alt=""
+                      sx={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', display: 'block' }}
+                    />
+                  ) : (
+                    <Box sx={{ bgcolor: 'grey.100', aspectRatio: '4 / 3', display: 'grid', placeItems: 'center', fontSize: 64 }}>
+                      {item.emoji || '📦'}
+                    </Box>
+                  )}
+                </CardActionArea>
+                <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexGrow: 1 }}>
+                  <Box sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+                    <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>{formatPrice(item.price)}</Typography>
                     <Typography component="h3" variant="subtitle1">{item.name}</Typography>
                     <Typography variant="body2" color="text.secondary">
                       {stock === 0 ? 'Out of stock' : `${stock} available`}
@@ -152,12 +165,13 @@ const Marketplace = ({ filters, products, loadError, user }) => {
                     onClick={() => {
                       handleAddToCart(item);
                       setAddedItem(item);
+                      setSnackbarOpen(true);
                     }}
                   >
                     {stock === 0 ? 'Out of stock' : cartEntry
-                      ? cartEntry.quantity > 1
-                        ? `Added (${cartEntry.quantity}) to cart`
-                        : 'Added to cart'
+                      ? limitReached
+                        ? `In cart (${cartEntry.quantity})`
+                        : `In cart (${cartEntry.quantity}) · Add 1`
                       : 'Add to cart'}
                   </Button>
                   )}
@@ -169,20 +183,26 @@ const Marketplace = ({ filters, products, loadError, user }) => {
       </Box>
 
       <Snackbar
-        open={Boolean(addedItem)}
+        open={snackbarOpen}
         autoHideDuration={3000}
-        onClose={() => setAddedItem(null)}
+        onClose={() => setSnackbarOpen(false)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       >
         <Alert
           variant="filled"
           severity="success"
-          onClose={() => setAddedItem(null)}
+          onClose={() => setSnackbarOpen(false)}
           sx={{ width: '100%' }}
         >
           {addedItem && `Added ${addedItem.name} to cart`}
         </Alert>
       </Snackbar>
+
+      <ProductDetails
+        product={openProduct}
+        sellerName={openProduct && sellerNames[openProduct.ownerId]}
+        onClose={() => setOpenProduct(null)}
+      />
     </Box>
   )
 }
