@@ -14,6 +14,7 @@ import {
   Typography,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { formatPrice } from './utils/salesUtils.js';
 import { getSoldQuantity } from './utils/stock.js';
 import {
   getAverageRating,
@@ -170,15 +171,15 @@ function UserProfile({ user, authReady }) {
                       component="img"
                       src={order.image}
                       alt={order.productName}
-                      sx={{ width: '100%', height: 144, objectFit: 'cover', display: 'block' }}
+                      sx={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', display: 'block' }}
                     />
                   ) : (
-                    <Box sx={{ bgcolor: 'grey.100', textAlign: 'center', p: 3, fontSize: 64 }}>📦</Box>
+                    <Box sx={{ bgcolor: 'grey.100', aspectRatio: '4 / 3', display: 'grid', placeItems: 'center', fontSize: 64 }}>📦</Box>
                   )}
                   <CardContent>
                     <Typography component="h3" variant="subtitle1">{order.productName}</Typography>
                     <Typography variant="body2" color="text.secondary">Qty sold: {getSoldQuantity(order)}</Typography>
-                    <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>${order.price}</Typography>
+                    <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>{formatPrice(order.price)}</Typography>
                     <Typography variant="caption" color="text.secondary">
                       Sold {new Date(order.createdAt).toLocaleDateString()}
                     </Typography>
