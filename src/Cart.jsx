@@ -62,7 +62,7 @@ function Cart() {
                   ) : (
                     <Box sx={{ fontSize: 40 }}>{item.emoji || '📦'}</Box>
                   )}
-                  <Box sx={{ flexGrow: 1 }}>
+                  <Box sx={{ flex: 1, minWidth: 180 }}>
                     <Typography component="h2" variant="subtitle1">{item.name}</Typography>
                     {item.condition && <Chip size="small" label={item.condition} sx={{ mt: 0.5 }} />}
                     <Typography variant="body2" color="text.secondary">
@@ -99,7 +99,7 @@ function Cart() {
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Box>
-                  <Typography fontWeight="bold" sx={{ minWidth: 80, textAlign: 'right', color: 'primary.main' }}>
+                  <Typography fontWeight="bold" sx={{ minWidth: 80, ml: 'auto', textAlign: 'right', color: 'primary.main' }}>
                     {formatMoney(lineTotal(item))}
                   </Typography>
                 </CardContent>
