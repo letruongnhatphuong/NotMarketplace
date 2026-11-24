@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { getBuyerOrders } from './services/profileService.js';
+import { formatPrice } from './utils/salesUtils.js';
 import { getSoldQuantity } from './utils/stock.js';
 
 const STATUS_COLORS = { completed: 'success', shipped: 'info', pending: 'warning' };
@@ -59,7 +60,13 @@ function Orders({ user, authReady }) {
       return <Alert severity="error">{error}</Alert>;
     }
     if (orders.length === 0) {
-      return <Typography color="text.secondary">You haven&apos;t ordered anything yet.</Typography>;
+      return (
+        <Card sx={{ borderRadius: 3, p: 4, textAlign: 'center' }}>
+          <Typography sx={{ fontSize: 48 }}>🛍️</Typography>
+          <Typography color="text.secondary" sx={{ mb: 2 }}>You haven&apos;t ordered anything yet.</Typography>
+          <Button component={Link} to="/marketplace" variant="contained">Browse marketplace</Button>
+        </Card>
+      );
     }
 
     return (
@@ -77,7 +84,7 @@ function Orders({ user, authReady }) {
               ) : (
                 <Box sx={{ fontSize: 40 }}>📦</Box>
               )}
-              <Box sx={{ flexGrow: 1 }}>
+              <Box sx={{ flex: 1, minWidth: 180 }}>
                 <Typography component="h2" variant="subtitle1">{order.productName}</Typography>
                 <Typography variant="body2" color="text.secondary">Qty: {getSoldQuantity(order)}</Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -86,8 +93,8 @@ function Orders({ user, authReady }) {
                   {new Date(order.createdAt).toLocaleDateString()}
                 </Typography>
               </Box>
-              <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>${order.price}</Typography>
-              <Chip size="small" label={order.status} color={STATUS_COLORS[order.status] || 'default'} />
+              <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>{formatPrice(order.price)}</Typography>
+              <Chip size="small" label={order.status} sx={{ textTransform: 'capitalize' }} color={STATUS_COLORS[order.status] || 'default'} />
               <Button component={Link} to={`/user/profile/${order.sellerId}`} variant="outlined" size="small">
                 View seller
               </Button>
