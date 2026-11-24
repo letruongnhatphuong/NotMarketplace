@@ -8,6 +8,10 @@ export function formatMoney(amount) {
   return amount.toLocaleString('en-CA', { style: 'currency', currency: 'CAD' });
 }
 
+export function formatPrice(price) {
+  return Number(price) === 0 ? 'Free' : formatMoney(Number(price));
+}
+
 // Adds up every sale with reduce: the running total starts at 0.
 export function totalRevenue(sales) {
   return sales.reduce((total, sale) => total + Number(sale.price), 0);
