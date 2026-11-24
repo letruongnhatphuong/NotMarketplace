@@ -10,15 +10,23 @@ const theme = createTheme({
     primary: { main: '#14532D', dark: '#166534', light: '#16A34A', contrastText: '#FFFFFF' },
     secondary: { main: '#F1EBDD', contrastText: '#1C2921' },
     warning: { main: '#C76B4A', contrastText: '#FFFFFF' },
-    success: { main: '#16A34A', contrastText: '#FFFFFF' },
+    success: { main: '#15803D', contrastText: '#FFFFFF' },
     info: { main: '#D6A85F', contrastText: '#1C2921' },
     background: { default: '#F5F0E6', paper: '#FFFFFF', navbar: '#FAF8F2' },
     text: { primary: '#1C2921', secondary: '#526157' },
     divider: '#E7E2D8',
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: { a: { color: '#14532D' } },
+    },
     // Soft cream condition chips.
-    MuiChip: { defaultProps: { color: 'secondary' } },
+    MuiChip: {
+      defaultProps: { color: 'secondary' },
+      styleOverrides: {
+        outlined: { color: '#1C2921', borderColor: '#7F8A82' },
+      },
+    },
     // White product cards with the palette's border gray.
     MuiCard: {
       styleOverrides: {
@@ -28,7 +36,7 @@ const theme = createTheme({
     // Search / form fields: white with border gray.
     MuiOutlinedInput: {
       styleOverrides: {
-        notchedOutline: { borderColor: '#E7E2D8' },
+        notchedOutline: { borderColor: '#7F8A82' },
       },
     },
   },
