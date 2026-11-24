@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Alert, Box, Button, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import CartContext from '../context/CartContext.js';
@@ -50,7 +51,11 @@ function CartCheckout() {
           </Box>
         </Stack>
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-        {!auth.currentUser && <Alert severity="info" sx={{ mb: 2 }}>Log in to pay for your items.</Alert>}
+        {!auth.currentUser && (
+          <Alert severity="info" sx={{ mb: 2 }} action={<Button component={Link} to="/" color="inherit" sx={{ whiteSpace: 'nowrap' }}>Log in</Button>}>
+            Log in to pay for your items.
+          </Alert>
+        )}
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Secure payment in CAD with Stripe.
         </Typography>
