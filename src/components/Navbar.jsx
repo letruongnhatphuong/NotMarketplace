@@ -37,10 +37,10 @@ function Navbar({ user, authReady, loggingOut, onLogout, onHome }) {
         borderColor: 'divider',
       }}
     >
-      <Container>
-        <Toolbar component="nav" disableGutters sx={{ gap: 2, flexWrap: 'wrap', py: 2 }}>
+      <Container maxWidth={false}>
+        <Toolbar component="nav" disableGutters sx={{ gap: { xs: 1, sm: 2 }, py: 1 }}>
           <Box component={Link} to="/marketplace" onClick={onHome} aria-label="Marketplace home" sx={{ display: 'inline-flex', flexShrink: 0 }}>
-            <Box component="img" src="/not-marketplace-emerald.png" width={72} height={72} alt="" />
+            <Box component="img" src="/not-marketplace-emerald.png" alt="" sx={{ width: { xs: 48, sm: 64 }, height: { xs: 48, sm: 64 } }} />
           </Box>
           <Box sx={{ flexGrow: 1 }} />
 
@@ -68,9 +68,13 @@ function Navbar({ user, authReady, loggingOut, onLogout, onHome }) {
                 variant={menuAnchor ? 'contained' : 'outlined'}
                 disabled={loggingOut}
                 aria-haspopup="true"
+                title={userName}
                 onClick={(event) => setMenuAnchor(event.currentTarget)}
+                sx={{ textTransform: 'none', maxWidth: { xs: 110, sm: 220 } }}
               >
-                {loggingOut ? 'Logging out…' : userName}
+                <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {loggingOut ? 'Logging out…' : userName}
+                </Box>
               </Button>
               <Menu
                 anchorEl={menuAnchor}
@@ -81,6 +85,7 @@ function Navbar({ user, authReady, loggingOut, onLogout, onHome }) {
                 slotProps={{ paper: { sx: { minWidth: menuAnchor ? Math.max(menuAnchor.offsetWidth, 180) : 'auto' } } }}
               >
                 <MenuItem component={Link} to="/user/profile" onClick={closeMenu}>Profile</MenuItem>
+                <MenuItem component={Link} to="/orders" onClick={closeMenu}>Orders</MenuItem>
                 <MenuItem component={Link} to="/favourites" onClick={closeMenu}>
                   Favourites{favouriteIds.length > 0 ? ` (${favouriteIds.length})` : ''}
                 </MenuItem>
@@ -92,7 +97,7 @@ function Navbar({ user, authReady, loggingOut, onLogout, onHome }) {
               </Menu>
             </>
           )}
-          {authReady && !user && <Button component={Link} to="/" variant="outlined" color="inherit">Log in</Button>}
+          {authReady && !user && <Button component={Link} to="/" variant="outlined" color="inherit" sx={{ whiteSpace: 'nowrap' }}>Log in</Button>}
         </Toolbar>
       </Container>
     </AppBar>
