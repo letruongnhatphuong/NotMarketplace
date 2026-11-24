@@ -14,6 +14,7 @@ import {
   TableHead,
   TableRow,
   Typography,
+  useMediaQuery,
   useTheme,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -44,7 +45,8 @@ function StatCard({ label, value, note }) {
 // Bar chart of revenue per month, drawn as SVG so no chart library is needed.
 function MonthlyRevenueChart({ months }) {
   const theme = useTheme();
-  const width = 600;
+  const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
+  const width = isPhone ? 360 : 600;
   const height = 220;
   const chartTop = 28;
   const chartBottom = 190;
@@ -76,7 +78,7 @@ function MonthlyRevenueChart({ months }) {
               rx="4"
               fill={theme.palette.primary.main}
             />
-            <text x={centre} y={chartBottom - barHeight - 8} textAnchor="middle" fontSize="13" fill={theme.palette.text.primary}>
+            <text x={centre} y={chartBottom - barHeight - 8} textAnchor="middle" fontSize={isPhone ? 12 : 13} fill={theme.palette.text.primary}>
               {month.total > 0 ? formatMoney(month.total) : ''}
             </text>
             <text x={centre} y={chartBottom + 20} textAnchor="middle" fontSize="13" fill={theme.palette.text.secondary}>
@@ -151,14 +153,14 @@ function Revenue({ user, authReady }) {
             <Button component={Link} to="/sold" size="small">View sold items</Button>
           </Box>
           <TableContainer component={Card} sx={{ borderRadius: 3 }}>
-            <Table size="small" aria-labelledby="revenue-history-heading">
+            <Table size="small" aria-labelledby="revenue-history-heading" sx={{ '& th, & td': { px: { xs: 1, sm: 2 } } }}>
               <TableHead>
                 <TableRow>
                   <TableCell>Date</TableCell>
                   <TableCell>Item</TableCell>
                   <TableCell>Sold to</TableCell>
                   <TableCell align="right">Amount</TableCell>
-                  <TableCell align="right">Running total</TableCell>
+                  <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Running total</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -168,7 +170,7 @@ function Revenue({ user, authReady }) {
                     <TableCell>{sale.productName} · Qty: {getSoldQuantity(sale)}</TableCell>
                     <TableCell>{buyerLabel(sale, buyerNames)}</TableCell>
                     <TableCell align="right">{formatMoney(Number(sale.price))}</TableCell>
-                    <TableCell align="right">{formatMoney(sale.runningTotal)}</TableCell>
+                    <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{formatMoney(sale.runningTotal)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
