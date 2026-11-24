@@ -68,10 +68,10 @@ function Sold({ user, authReady }) {
                   component="img"
                   src={sale.image}
                   alt={sale.productName}
-                  sx={{ width: '100%', height: 144, objectFit: 'cover', display: 'block' }}
+                  sx={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', display: 'block' }}
                 />
               ) : (
-                <Box sx={{ bgcolor: 'grey.100', textAlign: 'center', p: 3, fontSize: 64 }}>📦</Box>
+                <Box sx={{ bgcolor: 'grey.100', aspectRatio: '4 / 3', display: 'grid', placeItems: 'center', fontSize: 64 }}>📦</Box>
               )}
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 1 }}>
