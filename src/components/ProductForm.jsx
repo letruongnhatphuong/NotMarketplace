@@ -12,6 +12,8 @@ import {
   Typography,
 } from '@mui/material';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import MyLocationIcon from '@mui/icons-material/MyLocation';
+import useBrowserLocation from '../hooks/useBrowserLocation.js';
 import { MAX_IMAGE_FILE_SIZE, resizeImage } from '../utils/imageUtils.js';
 import { MAX_STOCK } from '../utils/stock.js';
 
@@ -37,6 +39,7 @@ const EMPTY_PRODUCT = {
   condition: '',
   description: '',
   location: '',
+  coordinates: null, // { lat, lng } from "Use my current location", rounded to about 1 km
 };
 
 function ProductForm({ onCreate }) {
@@ -46,6 +49,19 @@ function ProductForm({ onCreate }) {
   const [processingImage, setProcessingImage] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const { findLocation, finding, error: locationError } = useBrowserLocation();
+
+  // Fills the Location field with the area the browser reports.
+  async function handleUseMyLocation() {
+    const found = await findLocation();
+    if (!found) return;
+    // Functional update: the user may have typed in other fields while we waited.
+    setProduct((current) => ({
+      ...current,
+      location: found.label.slice(0, 80),
+      coordinates: { lat: found.lat, lng: found.lng },
+    }));
+  }
 
   // One handler for every text field: copy the product and overwrite one field.
   function handleChange(event) {
@@ -80,7 +96,7 @@ function ProductForm({ onCreate }) {
 
   async function handleSubmit(event) {
     event.preventDefault();
-    if (submitting || processingImage) return;
+    if (submitting || processingImage || finding) return;
 
     const stock = Number(product.stock);
     if (!Number.isSafeInteger(stock) || stock < 1 || stock > MAX_STOCK) {
@@ -99,6 +115,7 @@ function ProductForm({ onCreate }) {
         condition: product.condition,
         description: product.description.trim(),
         location: product.location.trim(),
+        ...(product.coordinates ? { coordinates: product.coordinates } : {}),
         image,
       });
       setProduct(EMPTY_PRODUCT);
@@ -213,8 +230,34 @@ function ProductForm({ onCreate }) {
             placeholder="e.g. Vancouver, BC"
             slotProps={{ htmlInput: { maxLength: 80 } }}
           />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mt: -1 }}>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<MyLocationIcon />}
+              onClick={handleUseMyLocation}
+              disabled={finding || submitting}
+            >
+              {finding ? 'Finding your location…' : product.coordinates ? 'Update my location' : 'Use my current location'}
+            </Button>
+            {product.coordinates ? (
+              <>
+                <Typography variant="body2" color="text.secondary">
+                  Approximate location added. Buyers see the distance to your area (about 1 km), not your address.
+                </Typography>
+                <Button size="small" color="inherit" onClick={() => setProduct({ ...product, coordinates: null })} disabled={submitting}>
+                  Remove
+                </Button>
+              </>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                Optional: lets nearby buyers find your item. Your browser will ask for permission.
+              </Typography>
+            )}
+          </Box>
+          {locationError && <Alert severity="warning">{locationError}</Alert>}
 
-          <Button type="submit" variant="contained" size="large" fullWidth disabled={submitting || processingImage}>
+          <Button type="submit" variant="contained" size="large" fullWidth disabled={submitting || processingImage || finding}>
             {submitting ? 'Listing…' : 'List item'}
           </Button>
           {message.text && <Alert severity={message.type}>{message.text}</Alert>}
