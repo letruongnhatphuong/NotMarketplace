@@ -17,11 +17,8 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SellIcon from '@mui/icons-material/Sell';
+import { formatPrice } from '../utils/salesUtils.js';
 import { getStock } from '../utils/stock.js';
-
-function formatPrice(price) {
-  return price === 0 ? 'Free' : `$${price.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
-}
 
 // The two actions a seller confirms in the dialog.
 const ACTIONS = {
@@ -103,7 +100,7 @@ function MyProductList({ products, onDelete, onMarkSold }) {
                 sx={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', display: 'block' }}
               />
             ) : (
-              <Box sx={{ bgcolor: 'grey.100', textAlign: 'center', p: 3, fontSize: 64 }}>📦</Box>
+              <Box sx={{ bgcolor: 'grey.100', aspectRatio: '4 / 3', display: 'grid', placeItems: 'center', fontSize: 64 }}>📦</Box>
             )}
             <CardContent sx={{ flexGrow: 1 }}>
               <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>{formatPrice(product.price)}</Typography>
