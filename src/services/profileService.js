@@ -65,10 +65,14 @@ export async function getBuyerOrders(buyerId) {
   const ordersQuery = query(collection(db, 'orders'), where('buyerId', '==', buyerId));
   const orders = docsToList(await getDocs(ordersQuery));
 
-  for (const order of orders) {
-    order.sellerName = (await getUsername(order.sellerId)) || 'Unknown seller';
-  }
-  return orders.sort(newestFirst);
+  const sellerIds = [...new Set(orders.map((order) => order.sellerId).filter(Boolean))];
+  const sellerNames = new Map(await Promise.all(sellerIds.map(async (sellerId) => [
+    sellerId, (await getUsername(sellerId)) || 'Unknown seller',
+  ])));
+  return orders.map((order) => ({
+    ...order,
+    sellerName: sellerNames.get(order.sellerId) || 'Unknown seller',
+  })).sort(newestFirst);
 }
 
 export function getAverageRating(reviews) {
