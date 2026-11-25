@@ -62,6 +62,9 @@ function PaymentStatus({ user, authReady, sessionId }) {
     if (result.status === 'refunded') {
       return <Alert severity="warning">An item became unavailable. Your payment has been refunded.</Alert>;
     }
+    if (result.status === 'failed') {
+      return <Alert severity="error">Payment failed. Please return to your cart and try again.</Alert>;
+    }
     return <Alert severity="warning">Your payment is still being confirmed. Check again shortly.</Alert>;
   }
 
@@ -70,7 +73,7 @@ function PaymentStatus({ user, authReady, sessionId }) {
     <Stack spacing={2} sx={{ maxWidth: 640, mx: 'auto' }}>
       <Typography component="h1" variant="h5">Payment status</Typography>
       {renderPaymentStatus()}
-      {user && sessionId && (error || status === 'pending') && (
+      {user && sessionId && (error || status === 'pending' || status === 'refund_pending') && (
         <Button onClick={() => setAttempt(attempt + 1)}>Check again</Button>
       )}
       {authReady && user && status === 'completed' && checkoutCart && !checkoutCart.removed && (

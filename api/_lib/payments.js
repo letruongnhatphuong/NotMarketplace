@@ -43,7 +43,11 @@ export function sendPaymentError(res, error) {
 // The transaction makes order creation and inventory changes exactly once.
 export async function completePayment(session, db, stripe) {
   const checkoutRef = db.collection('checkouts').doc(session.metadata.checkoutId);
-  if (session.payment_status !== 'paid') return { status: 'pending' };
+  if (session.payment_status !== 'paid') {
+    const snapshot = await checkoutRef.get();
+    if (!snapshot.exists) throw new Error('Checkout record missing.');
+    return { status: snapshot.data().status };
+  }
   const result = await db.runTransaction(async (transaction) => {
     const checkoutSnapshot = await transaction.get(checkoutRef);
     if (!checkoutSnapshot.exists) throw new Error('Checkout record missing.');
@@ -101,4 +105,20 @@ export async function completePayment(session, db, stripe) {
     return { status: 'refunded' };
   }
   return { status: result.status };
+}
+
+export async function markPaymentFailed(session, db) {
+  if (session.payment_status === 'paid' || !session.metadata?.checkoutId) return;
+  const checkoutRef = db.collection('checkouts').doc(session.metadata.checkoutId);
+  await db.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(checkoutRef);
+    if (!snapshot.exists) return;
+    const checkout = snapshot.data();
+    if (checkout.status !== 'pending') return;
+    if (session.client_reference_id !== checkout.buyerId
+      || session.currency !== 'cad' || session.amount_total !== checkout.total) {
+      throw new Error('Payment does not match checkout.');
+    }
+    transaction.update(checkoutRef, { status: 'failed' });
+  });
 }

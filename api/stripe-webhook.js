@@ -1,4 +1,4 @@
-import { sendPaymentError, completePayment, getPaymentServices } from './_lib/payments.js';
+import { sendPaymentError, completePayment, getPaymentServices, markPaymentFailed } from './_lib/payments.js';
 
 export const config = { api: { bodyParser: false } };
 
@@ -14,6 +14,8 @@ export default async function handler(req, res) {
     } catch { return res.status(400).json({ error: 'Invalid webhook signature.' }); }
     if (['checkout.session.completed', 'checkout.session.async_payment_succeeded'].includes(event.type)) {
       await completePayment(event.data.object, db, stripe);
+    } else if (event.type === 'checkout.session.async_payment_failed') {
+      await markPaymentFailed(event.data.object, db);
     }
     res.json({ received: true });
   } catch (error) { sendPaymentError(res, error); }
