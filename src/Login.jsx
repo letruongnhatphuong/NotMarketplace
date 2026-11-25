@@ -86,6 +86,8 @@ function Login() {
     try {
       const email = data.get('email').trim();
       const password = data.get('password');
+      await setPersistence(auth, !isSignUp && rememberMe
+        ? browserLocalPersistence : browserSessionPersistence);
       if (isSignUp) {
         const credential = await createUserWithEmailAndPassword(auth, email, password);
         try {
@@ -97,11 +99,6 @@ function Login() {
           return;
         }
       } else {
-        if (rememberMe) {
-          await setPersistence(auth, browserLocalPersistence);
-        } else {
-          await setPersistence(auth, browserSessionPersistence);
-        }
         const credential = await signInWithEmailAndPassword(auth, email, password);
         try {
           await ensureUserProfile(credential.user);
