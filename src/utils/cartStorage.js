@@ -12,7 +12,8 @@ function validItem(item) {
 
 export function loadCarts(storage) {
   try {
-    const saved = JSON.parse((storage || localStorage).getItem(STORAGE_KEY));
+    const data = JSON.parse((storage || localStorage).getItem(STORAGE_KEY));
+    const saved = data?.carts || data;
     if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return {};
     return Object.fromEntries(Object.entries(saved)
       .filter(([, items]) => Array.isArray(items))
@@ -21,11 +22,25 @@ export function loadCarts(storage) {
         .map((item) => ({
           ...item,
           id: OLD_PRODUCT_IDS[item.id] || item.id,
+          cartEntryId: item.cartEntryId || crypto.randomUUID(),
+          requestedQuantity: Number.isSafeInteger(item.requestedQuantity)
+            ? item.requestedQuantity : item.quantity,
           quantity: Math.min(item.quantity, getStock(item)),
         }))]));
   } catch {
     return {};
   }
+}
+
+export function loadCartState(storage) {
+  let checkouts = {};
+  try {
+    const saved = JSON.parse((storage || localStorage).getItem(STORAGE_KEY));
+    if (saved?.checkouts && typeof saved.checkouts === 'object') checkouts = saved.checkouts;
+  } catch {
+    checkouts = {};
+  }
+  return { carts: loadCarts(storage), checkouts };
 }
 
 export function saveCarts(carts, storage) {
@@ -44,10 +59,60 @@ export function addCartItem(items, item, quantity = 1) {
   const existing = items.find((entry) => entry.id === item.id);
   if (existing) {
     return items.map((entry) => entry.id === item.id
-      ? { ...entry, ...item, quantity: Math.min(entry.quantity + quantity, stock) }
+      ? {
+        ...entry, ...item,
+        cartEntryId: entry.cartEntryId || crypto.randomUUID(),
+        quantity: Math.min(entry.quantity + quantity, stock),
+        requestedQuantity: Math.min(entry.quantity + quantity, stock),
+      }
       : entry);
   }
-  return [...items, { ...item, quantity: Math.min(quantity, stock) }];
+  return [...items, {
+    ...item, cartEntryId: crypto.randomUUID(),
+    quantity: Math.min(quantity, stock), requestedQuantity: Math.min(quantity, stock),
+  }];
+}
+
+export function rememberCheckout(state, buyerId, sessionId, items) {
+  return {
+    ...state,
+    checkouts: {
+      ...state.checkouts,
+      [buyerId]: {
+        ...state.checkouts[buyerId],
+        [sessionId]: {
+          items: items.map((item) => ({
+            id: item.id,
+            cartEntryId: item.cartEntryId,
+            requestedQuantity: item.requestedQuantity || item.quantity,
+          })),
+          removed: false,
+        },
+      },
+    },
+  };
+}
+
+export function removeCheckoutItems(state, buyerId, sessionId) {
+  const checkout = state.checkouts[buyerId]?.[sessionId];
+  if (!checkout || checkout.removed) return state;
+  const items = (state.carts[buyerId] || []).flatMap((item) => {
+    const purchased = checkout.items.find((entry) => entry.id === item.id
+      && entry.cartEntryId === item.cartEntryId);
+    if (!purchased) return [item];
+    const remaining = Math.min(
+      (item.requestedQuantity || item.quantity) - purchased.requestedQuantity,
+      getStock(item),
+    );
+    return remaining > 0 ? [{ ...item, quantity: remaining, requestedQuantity: remaining }] : [];
+  });
+  return {
+    carts: { ...state.carts, [buyerId]: items },
+    checkouts: {
+      ...state.checkouts,
+      [buyerId]: { ...state.checkouts[buyerId], [sessionId]: { removed: true } },
+    },
+  };
 }
 
 export function reconcileCartStock(carts, products) {

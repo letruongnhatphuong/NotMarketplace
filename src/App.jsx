@@ -25,7 +25,7 @@ import Revenue from './Revenue.jsx';
 import Sold from './Sold.jsx';
 import Favourites from './Favourites.jsx';
 import { ensureUserProfile } from './services/profileService.js';
-import { addCartItem, loadCarts, mergeGuestCart, reconcileCartStock, saveCarts } from './utils/cartStorage.js';
+import { addCartItem, loadCartState, mergeGuestCart, reconcileCartStock, rememberCheckout, removeCheckoutItems, saveCarts } from './utils/cartStorage.js';
 import { getStock } from './utils/stock.js';
 import { subscribeToProducts } from './services/productService.js';
 
@@ -48,7 +48,11 @@ function App() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const page = pathname.replace(/\/+$/, '') || '/';
-  const [carts, setCarts] = useState(() => loadCarts());
+  const [cartState, setCartState] = useState(() => loadCartState());
+  const { carts } = cartState;
+  function setCarts(update) {
+    setCartState((current) => ({ ...current, carts: update(current.carts) }));
+  }
   const [products, setProducts] = useState([]);
   const [productsError, setProductsError] = useState('');
   const [productsLoaded, setProductsLoaded] = useState(false);
@@ -80,7 +84,8 @@ function App() {
         if (entry.id !== itemId) return entry;
         const product = products.find((candidate) => candidate.id === itemId);
         const stock = getStock(product || entry);
-        return { ...entry, ...(product || {}), quantity: Math.max(1, Math.min(quantity, stock)) };
+        const nextQuantity = Math.max(1, Math.min(quantity, stock));
+        return { ...entry, ...(product || {}), quantity: nextQuantity, requestedQuantity: nextQuantity };
       }),
     }));
   }
@@ -97,6 +102,20 @@ function App() {
   const [authError, setAuthError] = useState('');
   const cartItems = authReady ? carts[user ? user.uid : 'guest'] || [] : [];
   const favourites = useFavourites(user, authReady);
+
+  function handleRememberCheckout(buyerId, sessionId, items) {
+    if (auth.currentUser?.uid !== buyerId) throw new Error('Please log in again before checkout.');
+    const saved = rememberCheckout(loadCartState(), buyerId, sessionId, items);
+    if (!saveCarts(saved)) throw new Error('Unable to save your checkout. Please allow browser storage and try again.');
+    setCartState((current) => rememberCheckout(current, buyerId, sessionId, items));
+  }
+
+  function handleRemovePurchasedItems(sessionId) {
+    if (!user || auth.currentUser?.uid !== user.uid) return;
+    const next = removeCheckoutItems(cartState, user.uid, sessionId);
+    if (!saveCarts(next)) return;
+    setCartState(next);
+  }
 
   useEffect(() => {
     return subscribeToProducts((listedProducts, fromCache) => {
@@ -116,8 +135,8 @@ function App() {
   }, [page]);
 
   useEffect(() => {
-    saveCarts(carts);
-  }, [carts]);
+    saveCarts(cartState);
+  }, [cartState]);
 
   useEffect(() => {
     if (!auth) return;
@@ -157,7 +176,7 @@ function App() {
   }
 
   return (
-    <CartContext.Provider value={{ cartItems, products, handleAddToCart, handleClearCart, handleUpdateQuantity, handleRemoveFromCart, cartReady: authReady }}>
+    <CartContext.Provider value={{ cartItems, products, handleAddToCart, handleClearCart, handleUpdateQuantity, handleRemoveFromCart, handleRememberCheckout, handleRemovePurchasedItems, checkoutCarts: cartState.checkouts[user?.uid] || {}, cartReady: authReady }}>
     <FavouritesContext.Provider value={favourites}>
       <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         {page !== '/' && (

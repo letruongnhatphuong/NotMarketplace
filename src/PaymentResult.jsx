@@ -21,8 +21,8 @@ function PaymentStatus({ user, authReady, sessionId }) {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
-  const [removed, setRemoved] = useState(false);
-  const { cartItems, handleRemoveFromCart, handleUpdateQuantity } = useContext(CartContext);
+  const { checkoutCarts, handleRemovePurchasedItems } = useContext(CartContext);
+  const checkoutCart = checkoutCarts[sessionId];
 
   useEffect(() => {
     if (!authReady || !user || !sessionId) return;
@@ -45,21 +45,6 @@ function PaymentStatus({ user, authReady, sessionId }) {
       active = false;
     };
   }, [user, authReady, sessionId, attempt]);
-
-  function removePurchasedItems() {
-    for (const purchasedItem of result.items) {
-      const cartItem = cartItems.find((item) => item.id === purchasedItem.productId);
-      if (!cartItem) continue;
-
-      const remaining = (cartItem.quantity || 1) - purchasedItem.quantity;
-      if (remaining <= 0) {
-        handleRemoveFromCart(purchasedItem.productId);
-      } else {
-        handleUpdateQuantity(purchasedItem.productId, remaining);
-      }
-    }
-    setRemoved(true);
-  }
 
   function renderPaymentStatus() {
     if (!authReady) return <CircularProgress />;
@@ -88,8 +73,8 @@ function PaymentStatus({ user, authReady, sessionId }) {
       {user && sessionId && (error || status === 'pending') && (
         <Button onClick={() => setAttempt(attempt + 1)}>Check again</Button>
       )}
-      {authReady && user && status === 'completed' && !removed && (
-        <Button onClick={removePurchasedItems}>Remove purchased items from cart</Button>
+      {authReady && user && status === 'completed' && checkoutCart && !checkoutCart.removed && (
+        <Button onClick={() => handleRemovePurchasedItems(sessionId)}>Remove purchased items from cart</Button>
       )}
       <Button component={Link} to="/orders" variant="contained">View orders</Button>
       <Button component={Link} to="/cart">Back to cart</Button>

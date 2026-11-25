@@ -78,7 +78,7 @@ export default async function handler(req, res) {
       cancel_url: `${origin.replace(/\/$/, '')}/cart?payment=cancelled`,
     }, { idempotencyKey: checkoutId });
     await ref.update({ sessionId: session.id });
-    res.json({ url: session.url });
+    res.json({ url: session.url, sessionId: session.id });
   } catch (error) {
     sendPaymentError(res, error);
   }

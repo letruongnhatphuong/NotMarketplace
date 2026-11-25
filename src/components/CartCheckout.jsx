@@ -8,7 +8,7 @@ import { auth } from '../firebase.js';
 import { formatMoney } from '../utils/salesUtils.js';
 
 function CartCheckout() {
-  const { cartItems } = useContext(CartContext);
+  const { cartItems, handleRememberCheckout } = useContext(CartContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -22,10 +22,12 @@ function CartCheckout() {
     setLoading(true);
     setError('');
     try {
-      const { url } = await paymentRequest('/api/checkout', {
+      const buyerId = auth.currentUser.uid;
+      const { url, sessionId } = await paymentRequest('/api/checkout', {
         method: 'POST',
         body: JSON.stringify({ items: cartItems.map((item) => ({ id: item.id, quantity: item.quantity || 1 })) }),
       });
+      handleRememberCheckout(buyerId, sessionId, cartItems);
       window.location.assign(url);
     } catch (failure) {
       setError(failure.message);
