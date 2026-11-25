@@ -31,7 +31,8 @@ import { getStock } from './utils/stock.js';
 import ProductDetails from './components/ProductDetails.jsx';
 import useBrowserLocation from './hooks/useBrowserLocation.js';
 import useSearchLocation from './hooks/useSearchLocation.js';
-import { filterByDistance, formatDistance } from './utils/geo.js';
+import usePlaceCoordinates from './hooks/usePlaceCoordinates.js';
+import { filterByDistance, formatDistance, isValidCoords } from './utils/geo.js';
 
 const DISTANCE_OPTIONS = [5, 10, 25, 50, 100]; // km
 const DEFAULT_DISTANCE = 25;
@@ -61,15 +62,29 @@ const Marketplace = ({ filters, products, productsLoaded, loadError, onClearFilt
 
   const filtered = products.filter((product) => matchesFilters(product, filters));
 
+  // Most listings were posted with only a typed location ("Burnaby, BC") and no
+  // coordinates. While the distance filter is on, those places are looked up once
+  // (and remembered in this browser) so they can be measured too.
+  const typedPlaces = searchLocation
+    ? filtered.filter((product) => !isValidCoords(product.coordinates) && product.location).map((product) => product.location)
+    : [];
+  const { coordsFor, checking } = usePlaceCoordinates(typedPlaces, searchLocation);
+
   // With the buyer's location known: only items within the distance, nearest first.
-  // Listings without a location can't be measured, so they are hidden unless asked for.
+  // Listings with no usable location can't be measured, so they are listed only when asked for.
   let items = filtered;
   let unlocatedCount = 0;
   if (searchLocation) {
-    const { nearby, unlocated } = filterByDistance(filtered, searchLocation, searchLocation.radiusKm);
+    const measurable = filtered.map((product) => {
+      if (isValidCoords(product.coordinates)) return product;
+      const placePoint = coordsFor(product.location);
+      return placePoint ? { ...product, coordinates: placePoint } : product;
+    });
+    const { nearby, unlocated } = filterByDistance(measurable, searchLocation, searchLocation.radiusKm);
     unlocatedCount = unlocated.length;
     items = showUnlocated ? [...nearby, ...unlocated] : nearby;
   }
+  const widerDistance = searchLocation && DISTANCE_OPTIONS.find((km) => km > searchLocation.radiusKm);
 
   // Asks the browser where the buyer is (it shows a permission prompt the first time).
   async function handleUseMyLocation() {
@@ -152,7 +167,15 @@ const Marketplace = ({ filters, products, productsLoaded, loadError, onClearFilt
             </Typography>
           </>
         )}
-        {searchLocation && unlocatedCount > 0 && (
+        {searchLocation && checking > 0 && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CircularProgress size={16} aria-hidden="true" />
+            <Typography variant="body2" color="text.secondary" role="status">
+              Finding where {checking === 1 ? '1 listing is' : `${checking} listings are`}…
+            </Typography>
+          </Box>
+        )}
+        {searchLocation && checking === 0 && unlocatedCount > 0 && (
           <>
             <Typography variant="body2" color="text.secondary">
               {showUnlocated
@@ -171,18 +194,34 @@ const Marketplace = ({ filters, products, productsLoaded, loadError, onClearFilt
       {productsLoaded && products.length === 0 && (
         <Typography color="text.secondary">Nothing is listed yet. Be the first to sell an item.</Typography>
       )}
-      {productsLoaded && products.length > 0 && items.length === 0 && (
+      {productsLoaded && filtered.length === 0 && products.length > 0 && (
         <Box>
-          <Typography color="text.secondary" sx={{ mb: 2 }}>
-            {searchLocation && filtered.length > 0
-              ? `No items within ${searchLocation.radiusKm} km of ${searchLocation.label}.`
-              : 'No items match your search.'}
+          <Typography color="text.secondary" sx={{ mb: 2 }}>No items match your search.</Typography>
+          <Button variant="outlined" onClick={onClearFilters}>Clear filters</Button>
+        </Box>
+      )}
+      {productsLoaded && searchLocation && filtered.length > 0 && items.length === 0 && checking === 0 && (
+        <Box>
+          <Typography color="text.secondary" sx={{ mb: unlocatedCount > 0 ? 0.5 : 2 }}>
+            No items within {searchLocation.radiusKm} km of {searchLocation.label}.
           </Typography>
+          {unlocatedCount > 0 && (
+            <Typography color="text.secondary" sx={{ mb: 2 }}>
+              {unlocatedCount === 1 ? '1 item has' : `${unlocatedCount} items have`} no location, so {unlocatedCount === 1 ? 'its' : 'their'} distance is unknown.
+            </Typography>
+          )}
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            {searchLocation && filtered.length > 0 && (
-              <Button variant="contained" onClick={handleClearLocation}>Show items everywhere</Button>
+            {widerDistance && (
+              <Button variant="contained" onClick={() => setSearchLocation({ ...searchLocation, radiusKm: widerDistance })}>
+                Search within {widerDistance} km
+              </Button>
             )}
-            <Button variant="outlined" onClick={onClearFilters}>Clear filters</Button>
+            {unlocatedCount > 0 && (
+              <Button variant="outlined" onClick={() => setShowUnlocated(true)}>
+                Show {unlocatedCount === 1 ? 'it' : `the ${unlocatedCount}`} without a location
+              </Button>
+            )}
+            <Button variant={widerDistance ? 'outlined' : 'contained'} onClick={handleClearLocation}>Show items everywhere</Button>
           </Box>
         </Box>
       )}
