@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import {
   Box,
   Button,
-  ButtonBase,
   List,
   ListItemButton,
   ListItemText,
@@ -40,7 +39,6 @@ const titleStyle = {
 
 function Sidebar({ filters, onChange, onApply }) {
   const { item, category, minPrice, maxPrice, condition } = filters;
-  const [sellingOpen, setSellingOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const priceError = minPrice !== '' && maxPrice !== '' && Number(minPrice) > Number(maxPrice);
 
@@ -109,23 +107,6 @@ function Sidebar({ filters, onChange, onApply }) {
           <Button variant="outlined" fullWidth onClick={handleClear}>Clear</Button>
         </Box>
       </Box>
-
-      <ButtonBase
-        aria-expanded={sellingOpen}
-        onClick={() => setSellingOpen(!sellingOpen)}
-        sx={{ ...titleStyle, width: '100%', justifyContent: 'space-between', fontSize: '1rem', fontFamily: 'inherit' }}
-      >
-        Selling
-        {sellingOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-      </ButtonBase>
-
-      {sellingOpen && (
-        <List disablePadding>
-          <ListItemButton component={Link} to="/selling">
-            <ListItemText primary="Selling" />
-          </ListItemButton>
-        </List>
-      )}
       </Box>
     </Box>
   );
