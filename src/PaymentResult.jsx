@@ -7,6 +7,17 @@ import CartContext from './context/CartContext.js';
 export default function PaymentResult({ user, authReady }) {
   const [params] = useSearchParams();
   const sessionId = params.get('session_id');
+  return (
+    <PaymentStatus
+      key={`${user?.uid || 'guest'}:${sessionId || ''}`}
+      user={user}
+      authReady={authReady}
+      sessionId={sessionId}
+    />
+  );
+}
+
+function PaymentStatus({ user, authReady, sessionId }) {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
@@ -14,7 +25,7 @@ export default function PaymentResult({ user, authReady }) {
   const { cartItems, handleRemoveFromCart, handleUpdateQuantity } = useContext(CartContext);
 
   useEffect(() => {
-    if (!user || !sessionId) return;
+    if (!authReady || !user || !sessionId) return;
     let active = true;
 
     async function checkPayment() {
@@ -33,7 +44,7 @@ export default function PaymentResult({ user, authReady }) {
     return () => {
       active = false;
     };
-  }, [user, sessionId, attempt]);
+  }, [user, authReady, sessionId, attempt]);
 
   function removePurchasedItems() {
     for (const purchasedItem of result.items) {
@@ -77,7 +88,7 @@ export default function PaymentResult({ user, authReady }) {
       {user && sessionId && (error || status === 'pending') && (
         <Button onClick={() => setAttempt(attempt + 1)}>Check again</Button>
       )}
-      {status === 'completed' && !removed && (
+      {authReady && user && status === 'completed' && !removed && (
         <Button onClick={removePurchasedItems}>Remove purchased items from cart</Button>
       )}
       <Button component={Link} to="/orders" variant="contained">View orders</Button>
