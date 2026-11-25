@@ -94,7 +94,11 @@ export async function completePayment(session, db, stripe) {
       delete summary.stripeSessionId;
       transaction.set(db.collection('publicSales').doc(orderId), summary);
       const stock = (products[i].data().stock ?? 1) - item.quantity;
-      transaction.update(products[i].ref, { stock });
+      if (stock === 0) {
+        transaction.delete(products[i].ref);
+      } else {
+        transaction.update(products[i].ref, { stock });
+      }
     }
     transaction.update(checkoutRef, { status: 'completed', sessionId: session.id });
     return { status: 'completed' };
