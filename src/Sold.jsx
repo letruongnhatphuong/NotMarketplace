@@ -47,7 +47,7 @@ function Sold({ user, authReady }) {
           <Typography color="text.secondary" sx={{ mb: 2 }}>
             Nothing sold yet. Items move here from your listings once they sell.
           </Typography>
-          <Button component={Link} to="/sell" variant="contained">Go to your listings</Button>
+          <Button component={Link} to="/selling" variant="contained">Go to your listings</Button>
         </Card>
       );
     }

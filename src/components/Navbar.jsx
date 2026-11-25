@@ -91,6 +91,7 @@ function Navbar({ user, authReady, loggingOut, onLogout, onHome }) {
                 </MenuItem>
                 <Divider />
                 <MenuItem component={Link} to="/revenue" onClick={closeMenu}>Revenue</MenuItem>
+                <MenuItem component={Link} to="/selling" onClick={closeMenu}>Selling</MenuItem>
                 <MenuItem component={Link} to="/sold" onClick={closeMenu}>Sold</MenuItem>
                 <Divider />
                 <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>Log out</MenuItem>

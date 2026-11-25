@@ -124,7 +124,7 @@ function Favourites({ user, productsLoaded, loadError }) {
                 </CardContent>
                 <CardActions>
                   {isOwnListing ? (
-                    <Button fullWidth component={Link} to="/sell" variant="outlined" startIcon={<StorefrontIcon />}>
+                    <Button fullWidth component={Link} to="/selling" variant="outlined" startIcon={<StorefrontIcon />}>
                       Your listing
                     </Button>
                   ) : (

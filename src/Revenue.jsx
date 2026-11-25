@@ -121,7 +121,7 @@ function Revenue({ user, authReady }) {
           <Typography color="text.secondary" sx={{ mb: 2 }}>
             No sales yet. When one of your items sells, its revenue appears here.
           </Typography>
-          <Button component={Link} to="/sell" variant="contained">Go to your listings</Button>
+          <Button component={Link} to="/selling" variant="contained">Go to your listings</Button>
         </Card>
       );
     }

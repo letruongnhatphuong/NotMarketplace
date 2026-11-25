@@ -121,7 +121,7 @@ function Sidebar({ filters, onChange, onApply }) {
 
       {sellingOpen && (
         <List disablePadding>
-          <ListItemButton component={Link} to="/sell">
+          <ListItemButton component={Link} to="/selling">
             <ListItemText primary="Selling" />
           </ListItemButton>
         </List>

@@ -294,7 +294,7 @@ const Marketplace = ({ filters, products, productsLoaded, loadError, onClearFilt
                     <Button
                       fullWidth
                       component={Link}
-                      to="/sell"
+                      to="/selling"
                       variant="outlined"
                       startIcon={<StorefrontIcon />}
                     >
