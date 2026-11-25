@@ -19,6 +19,7 @@ import Marketplace from './Marketplace.jsx';
 import Cart from './Cart.jsx';
 import PaymentResult from './PaymentResult.jsx';
 import Sell from './Sell.jsx';
+import Selling from './Selling.jsx';
 import Orders from './Orders.jsx';
 import UserProfile from './UserProfile.jsx';
 import Revenue from './Revenue.jsx';
@@ -34,7 +35,8 @@ const PAGE_TITLES = {
   '/marketplace': 'Items for sale',
   '/cart': 'Your cart',
   '/payment': 'Payment status',
-  '/sell': 'Sell',
+  '/sell': 'Sell an item',
+  '/selling': 'Selling',
   '/orders': 'Your orders',
   '/revenue': 'Revenue',
   '/sold': 'Sold',
@@ -203,6 +205,7 @@ function App() {
               <Route path="/payment" element={<PaymentResult user={user} authReady={authReady} />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/sell" element={<Sell user={user} authReady={authReady} />} />
+              <Route path="/selling" element={<Selling user={user} authReady={authReady} />} />
               <Route path="/orders" element={<Orders user={user} authReady={authReady} />} />
               <Route path="/revenue" element={<Revenue user={user} authReady={authReady} />} />
               <Route path="/sold" element={<Sold user={user} authReady={authReady} />} />

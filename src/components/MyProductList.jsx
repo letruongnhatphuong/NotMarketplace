@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Alert,
   Box,
@@ -76,7 +77,8 @@ function MyProductList({ products, onDelete, onMarkSold }) {
     return (
       <Card sx={{ borderRadius: 3, p: 4, textAlign: 'center' }}>
         <Typography sx={{ fontSize: 48 }}>📦</Typography>
-        <Typography color="text.secondary">You haven&apos;t listed any items yet.</Typography>
+        <Typography color="text.secondary" sx={{ mb: 2 }}>You haven&apos;t listed any items yet.</Typography>
+        <Button component={Link} to="/sell" variant="contained">Sell an item</Button>
       </Card>
     );
   }
@@ -86,7 +88,7 @@ function MyProductList({ products, onDelete, onMarkSold }) {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
           gap: 2,
         }}
       >
