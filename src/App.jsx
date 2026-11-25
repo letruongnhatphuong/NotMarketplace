@@ -140,12 +140,15 @@ function App() {
 
   useEffect(() => {
     if (!auth) return;
+    let initialCheck = true;
     return onAuthStateChanged(auth, (currentUser) => {
+      const restoringSession = initialCheck;
+      initialCheck = false;
       setUser(currentUser);
       setAuthError('');
       if (currentUser) {
         setCarts((current) => mergeGuestCart(current, currentUser.uid));
-        ensureUserProfile(currentUser).catch((error) => {
+        if (restoringSession) ensureUserProfile(currentUser).catch((error) => {
           if (auth.currentUser?.uid === currentUser.uid) {
             const reason = error.code === 'permission-denied'
               ? 'The database denied access to save your public profile. Please contact the project owner.'
@@ -195,7 +198,7 @@ function App() {
           <Container component="main" maxWidth={page === '/marketplace' ? 'xl' : 'lg'} sx={{ py: 4, minWidth: 0 }}>
             {authError && <Alert severity="error" sx={{ mb: 2 }}>{authError}</Alert>}
             <Routes>
-              <Route path="/" element={<Login />} />
+              <Route path="/" element={<Login authReady={authReady} />} />
               <Route path="/marketplace" element={<Marketplace filters={filters} products={products} productsLoaded={productsLoaded} loadError={productsError} onClearFilters={handleHome} user={user} />} />
               <Route path="/payment" element={<PaymentResult user={user} authReady={authReady} />} />
               <Route path="/cart" element={<Cart />} />

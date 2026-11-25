@@ -26,7 +26,7 @@ import {
   Typography,
 } from '@mui/material';
 
-function Login() {
+function Login({ authReady }) {
   const navigate = useNavigate();
   const [mode, setMode] = useState('login');
   const [message, setMessage] = useState('');
@@ -38,7 +38,7 @@ function Login() {
   const [messageType, setMessageType] = useState('error');
 
   async function handleResetPassword(event) {
-    if (submitting) return;
+    if (submitting || !authReady) return;
 
     const emailInput =
       event.currentTarget.form.elements.namedItem('email');
@@ -68,7 +68,7 @@ function Login() {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    if (submitting) return;
+    if (submitting || !authReady) return;
     const data = new FormData(event.currentTarget);
     setMessage('');
     setMessageType('error');
@@ -152,8 +152,8 @@ function Login() {
           variant="fullWidth"
           aria-label="Account access"
         >
-          <Tab disabled={submitting} id="login-tab" aria-controls="account-panel" value="login" label="Log in" />
-          <Tab disabled={submitting} id="signup-tab" aria-controls="account-panel" value="signup" label="Sign up" />
+          <Tab disabled={submitting || !authReady} id="login-tab" aria-controls="account-panel" value="login" label="Log in" />
+          <Tab disabled={submitting || !authReady} id="signup-tab" aria-controls="account-panel" value="signup" label="Sign up" />
         </Tabs>
         <CardContent role="tabpanel" id="account-panel" aria-labelledby={`${mode}-tab`} sx={{ p: 3 }}>
           {isSignUp && (
@@ -216,15 +216,15 @@ function Login() {
               />
             )}
 
-            <Button disabled={submitting} type="submit" variant="contained" size="large" fullWidth>
-              {submitting ? 'Please wait…' : isSignUp ? 'Create account' : 'Log in'}
+            <Button disabled={submitting || !authReady} type="submit" variant="contained" size="large" fullWidth>
+              {!authReady ? 'Checking login…' : submitting ? 'Please wait…' : isSignUp ? 'Create account' : 'Log in'}
             </Button>
 
             {!isSignUp && (
               <Button
                 type="button"
                 onClick={handleResetPassword}
-                disabled={submitting}
+                disabled={submitting || !authReady}
               >
                 Forgot password?
               </Button>
