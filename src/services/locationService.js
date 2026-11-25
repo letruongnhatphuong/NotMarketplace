@@ -30,23 +30,36 @@ export function getApproximatePosition() {
   });
 }
 
+// --- OpenStreetMap's free Nominatim service ---
+// Its usage policy allows at most one request per second, so every request
+// waits for its turn and they are spaced at least 1.1 s apart.
+const NOMINATIM_URL = 'https://nominatim.openstreetmap.org';
+const MIN_REQUEST_GAP_MS = 1100;
+let nextRequestAt = 0;
+
+async function nominatim(path, params) {
+  const waitMs = Math.max(0, nextRequestAt - Date.now());
+  nextRequestAt = Math.max(Date.now(), nextRequestAt) + MIN_REQUEST_GAP_MS;
+  if (waitMs > 0) await new Promise((resolve) => setTimeout(resolve, waitMs));
+
+  const query = new URLSearchParams({ format: 'jsonv2', ...params });
+  const response = await fetch(`${NOMINATIM_URL}/${path}?${query}`, {
+    headers: { 'Accept-Language': navigator.language || 'en' },
+  });
+  if (!response.ok) throw new Error('The address service is not responding.');
+  return response.json();
+}
+
 // A short name for the area around a point, e.g. "Kitsilano, Vancouver".
-// Uses OpenStreetMap's free Nominatim service (one request per button click).
-// If it is unavailable, the location still works with a generic name.
+// If the service is unavailable, the location still works with a generic name.
 export async function getAreaName(point) {
   try {
-    const query = new URLSearchParams({
-      format: 'jsonv2',
+    const place = await nominatim('reverse', {
       lat: String(point.lat),
       lon: String(point.lng),
       zoom: '14',
       addressdetails: '1',
     });
-    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?${query}`, {
-      headers: { 'Accept-Language': navigator.language || 'en' },
-    });
-    if (!response.ok) return 'Your area';
-    const place = await response.json();
     const a = place.address || {};
     const area = a.neighbourhood || a.suburb || a.quarter || a.city_district;
     const city = a.city || a.town || a.village || a.municipality || a.county;
@@ -55,4 +68,29 @@ export async function getAreaName(point) {
   } catch {
     return 'Your area';
   }
+}
+
+// Requests already on their way, so the same place is never looked up twice at once.
+const placeRequests = new Map();
+
+// The approximate point for a typed place such as "Burnaby, BC" (rounded to about
+// 1 km), or null if the service doesn't know it. Used for listings that were
+// posted with a typed location but no coordinates. Results near the buyer are
+// preferred, so "Richmond" finds Richmond, BC for a buyer in Vancouver.
+// Throws if the service can't be reached, so the caller can try again later.
+export function findPlace(text, near) {
+  const key = `${text}|${near ? `${near.lat},${near.lng}` : ''}`;
+  if (!placeRequests.has(key)) {
+    const params = { q: text, limit: '1' };
+    if (near) {
+      params.viewbox = [near.lng - 1, near.lat + 1, near.lng + 1, near.lat - 1].join(',');
+    }
+    const request = nominatim('search', params)
+      .then((results) => (results.length > 0
+        ? approximateCoords({ lat: Number(results[0].lat), lng: Number(results[0].lon) })
+        : null))
+      .finally(() => placeRequests.delete(key));
+    placeRequests.set(key, request);
+  }
+  return placeRequests.get(key);
 }
