@@ -105,8 +105,11 @@ function MyProductList({ products, onDelete, onMarkSold }) {
             <CardContent sx={{ flexGrow: 1 }}>
               <Typography fontWeight="bold" sx={{ color: 'primary.main' }}>{formatPrice(product.price)}</Typography>
               <Typography component="h3" variant="subtitle1">{product.name}</Typography>
-              <Typography variant="body2" color="text.secondary">{getStock(product)} available</Typography>
+              {getStock(product) > 0 && (
+                <Typography variant="body2" color="text.secondary">{getStock(product)} available</Typography>
+              )}
               <Stack direction="row" spacing={1} sx={{ my: 1, flexWrap: 'wrap', rowGap: 1 }}>
+                {getStock(product) === 0 && <Chip size="small" color="success" label="Sold" />}
                 <Chip size="small" label={product.condition} />
                 <Chip size="small" variant="outlined" label={product.category} />
               </Stack>
@@ -124,14 +127,16 @@ function MyProductList({ products, onDelete, onMarkSold }) {
               )}
             </CardContent>
             <CardActions>
-              <Button
-                fullWidth
-                variant="contained"
-                startIcon={<SellIcon />}
-                onClick={() => setPendingAction({ type: 'sold', product })}
-              >
-                Mark as sold
-              </Button>
+              {getStock(product) > 0 && (
+                <Button
+                  fullWidth
+                  variant="contained"
+                  startIcon={<SellIcon />}
+                  onClick={() => setPendingAction({ type: 'sold', product })}
+                >
+                  Mark as sold
+                </Button>
+              )}
               <Button
                 fullWidth
                 color="error"
